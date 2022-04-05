@@ -50,7 +50,7 @@ items:
     kind: RoleBinding
     metadata:
       name: pipeline_edit
-      namespace:  ui-components-uat
+      namespace:  ui-components-prod
     roleRef:
       apiGroup: rbac.authorization.k8s.io
       kind: ClusterRole
@@ -58,4 +58,4 @@ items:
     subjects:
       - kind: ServiceAccount
         name: github-actions
-        namespace: ui-components-prod
+        namespace: ui-components-build
