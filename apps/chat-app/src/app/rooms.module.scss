@@ -1,0 +1,16 @@
+.rooms {
+  padding-left: 0;
+  li {
+    display: block;
+    padding: 16px;
+    border-radius: 8px;
+    margin: 16px;
+    cursor: pointer;
+  }
+  li:hover {
+    background-color: #fff;
+  }
+  li[data-selected=true] {
+    background-color: #fff;
+  }
+}

@@ -1,0 +1,13 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
+
+export const environment = {
+  production: false,
+  port: '3333',
+  TENANT_REALM: null,
+  ACCESS_SERVICE_URL: null,
+  DIRECTORY_SERVICE_URL: null,
+  CLIENT_SECRET: null,
+  LOG_LEVEL: 'debug',
+  ...process.env,
+};
