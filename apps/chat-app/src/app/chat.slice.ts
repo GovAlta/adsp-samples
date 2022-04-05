@@ -181,6 +181,11 @@ export const fetchRooms = createAsyncThunk(
     const response = await fetch('/api/chat/v1/rooms', {
       headers: { Authorization: `Bearer ${token}` },
     });
+    
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Request chatter role to access...');
+    }
+    
     return response.json();
   }
 );
@@ -193,6 +198,7 @@ export const fetchMessages = createAsyncThunk(
     const response = await fetch(`/api/chat/v1/rooms/${roomId}/messages`, {
       headers: { Authorization: `Bearer ${token}` },
     });
+
     const result: { results: MessageValue[] } = await response.json();
     const messages: { roomId: string; results: Message[] } = {
       roomId,

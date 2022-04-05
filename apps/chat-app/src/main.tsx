@@ -33,8 +33,12 @@ const store = configureStore({
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: ['redux-oidc/USER_FOUND'],
-        ignoredPaths: ['user.user'],
+        ignoredActions: [
+          'redux-oidc/USER_FOUND',
+          'chat/fetchMessages/fulfilled',
+          'chat/receivedMessage/fulfilled',
+        ],
+        ignoredPaths: ['user.user', 'chat.messages'],
       },
     });
   },

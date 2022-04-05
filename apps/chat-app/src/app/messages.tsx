@@ -70,7 +70,7 @@ export const Messages: FunctionComponent = () => {
 
   return (
     <ul className={styles.messages}>
-      {messages?.map((message) => <MessageItem message={message} />)}
+      {messages?.map((message, idx) => <MessageItem key={idx} message={message} />)}
     </ul>
   );
 };

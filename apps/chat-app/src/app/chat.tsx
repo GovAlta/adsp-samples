@@ -2,7 +2,7 @@ import React, { FunctionComponent, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { UserState } from 'redux-oidc';
 import styles from './chat.module.scss';
-import { connectStream, fetchRooms } from './chat.slice';
+import { ChatState, connectStream, fetchRooms } from './chat.slice';
 import { Compose } from './compose';
 import { ConnectLabel } from './connectLabel';
 import { Messages } from './messages';
@@ -11,6 +11,7 @@ import { Rooms } from './rooms';
 
 export const Chat: FunctionComponent = () => {
   const user = useSelector((state: { user: UserState }) => state.user.user);  
+  const error = useSelector((state: { chat: ChatState }) => state.chat.error);  
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -37,6 +38,11 @@ export const Chat: FunctionComponent = () => {
       {!user && (
         <div className={styles.overlay}>
           <p>Sign in to get chatting...</p>
+        </div>
+      )}
+      {user && error && (
+        <div className={styles.overlay}>
+          <p>{error}</p>
         </div>
       )}
     </main>
