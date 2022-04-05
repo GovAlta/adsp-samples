@@ -1,6 +1,5 @@
 import { GoAHeroBanner } from '@abgov/react-components';
 import { FunctionComponent } from 'react';
-import { useSelector } from 'react-redux';
 import styles from './app.module.scss';
 
 export const Landing: FunctionComponent = () => {

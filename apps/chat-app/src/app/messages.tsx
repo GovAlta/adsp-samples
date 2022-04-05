@@ -66,7 +66,7 @@ export const Messages: FunctionComponent = () => {
     if (room) {
       dispatch(fetchMessages({ roomId: room.id }));
     }
-  }, [room]);
+  }, [dispatch, room]);
 
   return (
     <ul className={styles.messages}>

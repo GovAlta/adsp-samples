@@ -63,11 +63,11 @@ jobs:
 
       # Project build steps lint, test, and build
       - name: Lint
-        run: npm run affected:lint -- --base=${{ env.AFFECTED_BASE }}
+        run: npx nx affected:lint --base=${{ env.AFFECTED_BASE }}
       - name: Test
-        run: npm run affected:test -- --base=${{ env.AFFECTED_BASE }}
+        run: npx nx affected:test --base=${{ env.AFFECTED_BASE }}
       - name: Build
-        run: npm run affected:build -- --base=${{ env.AFFECTED_BASE }} --configuration production
+        run: npx nx affected:build --base=${{ env.AFFECTED_BASE }} --configuration production
       # Set affected apps to env for later steps and jobs.
       - name: Set AFFECTED_APPS for OC steps
         run: echo "AFFECTED_APPS=$(npx nx affected:apps --plain --base=${{ env.AFFECTED_BASE }})" >> $GITHUB_ENV
