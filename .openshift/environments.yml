@@ -13,18 +13,18 @@ items:
     subjects:
       - apiGroup: rbac.authorization.k8s.io
         kind: Group
-        name: 'system:serviceaccounts: ui-components-dev'
+        name: 'system:serviceaccounts:ui-components-dev'
       - apiGroup: rbac.authorization.k8s.io
         kind: Group
-        name: 'system:serviceaccounts: ui-components-uat'
+        name: 'system:serviceaccounts:ui-components-uat'
       - apiGroup: rbac.authorization.k8s.io
         kind: Group
-        name: 'system:serviceaccounts: ui-components-prod'
+        name: 'system:serviceaccounts:ui-components-prod'
   - apiVersion: rbac.authorization.k8s.io/v1
     kind: RoleBinding
     metadata:
       name: pipeline_edit
-      namespace:  ui-components-dev
+      namespace: ui-components-dev
     roleRef:
       apiGroup: rbac.authorization.k8s.io
       kind: ClusterRole
@@ -37,7 +37,7 @@ items:
     kind: RoleBinding
     metadata:
       name: pipeline_edit
-      namespace:  ui-components-uat
+      namespace: ui-components-uat
     roleRef:
       apiGroup: rbac.authorization.k8s.io
       kind: ClusterRole
@@ -50,7 +50,7 @@ items:
     kind: RoleBinding
     metadata:
       name: pipeline_edit
-      namespace:  ui-components-prod
+      namespace: ui-components-prod
     roleRef:
       apiGroup: rbac.authorization.k8s.io
       kind: ClusterRole

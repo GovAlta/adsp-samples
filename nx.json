@@ -29,7 +29,7 @@
       }
     ]
   },
-  "defaultProject": "intake-service",
+  "defaultProject": "chat-service",
   "generators": {
     "@nrwl/react": {
       "application": {
