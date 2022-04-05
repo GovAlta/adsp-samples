@@ -38,7 +38,7 @@ jobs:
         with:
           node-version: '16'
       - run: |
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" >> .npmrc
           npm ci
 
       # Determine the last successful build of this (pipeline.yml) workflow and set it as the AFFECTED_BASE.
