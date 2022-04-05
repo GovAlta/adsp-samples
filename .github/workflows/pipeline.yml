@@ -92,7 +92,7 @@ jobs:
         run: |
           for app in $AFFECTED_APPS
           do 
-            oc start-build $app --from-dir . --follow 
+            oc start-build $app --from-dir . --follow --wait
           done
       # Set build job outputs for subsequent jobs.
       - id: set_outputs
