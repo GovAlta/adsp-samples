@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      name: env_deploy_pullers
+      namespace: ui-components-build
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: 'system:image-puller'
+    subjects:
+      - apiGroup: rbac.authorization.k8s.io
+        kind: Group
+        name: 'system:serviceaccounts: ui-components-dev'
+      - apiGroup: rbac.authorization.k8s.io
+        kind: Group
+        name: 'system:serviceaccounts: ui-components-uat'
+      - apiGroup: rbac.authorization.k8s.io
+        kind: Group
+        name: 'system:serviceaccounts: ui-components-prod'
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      name: pipeline_edit
+      namespace:  ui-components-dev
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: edit
+    subjects:
+      - kind: ServiceAccount
+        name: github-actions
+        namespace: ui-components-build
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      name: pipeline_edit
+      namespace:  ui-components-uat
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: edit
+    subjects:
+      - kind: ServiceAccount
+        name: github-actions
+        namespace: ui-components-build
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      name: pipeline_edit
+      namespace:  ui-components-uat
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: edit
+    subjects:
+      - kind: ServiceAccount
+        name: github-actions
+        namespace: ui-components-prod

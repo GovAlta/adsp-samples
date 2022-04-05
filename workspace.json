@@ -1,4 +1,8 @@
 {
   "version": 2,
-  "projects": {}
+  "projects": {
+    "chat-app": "apps/chat-app",
+    "chat-app-e2e": "apps/chat-app-e2e",
+    "chat-service": "apps/chat-service"
+  }
 }

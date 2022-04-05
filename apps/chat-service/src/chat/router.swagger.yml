@@ -1,0 +1,65 @@
+/chat/v1/rooms:
+  get:
+    tags: 
+      - Chat
+    description: Gets available rooms.
+    responses:
+      200:
+        description: Request completed successfully.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  id: 
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    type: string
+/chat/v1/rooms/{roomId}:
+  get:
+    tags: 
+      - Chat
+    description: Get information about a room.
+    responses:
+      200:
+        description: Request completed successfully.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id: 
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+
+/chat/v1/rooms/{roomId}/messages:
+  get:
+    tags: 
+      - Chat
+    description: Gets messages in a room.
+    responses:
+      200:
+        description: Request completed successfully.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                results:
+                  type: array
+                page:
+                  type: object
+                  properties:
+                    after:
+                      type: string
+                    next:
+                      type: string
+                    size:
+                      type: number

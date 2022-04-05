@@ -1,0 +1,42 @@
+import { DOMElement, FunctionComponent, useEffect, useLayoutEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { UserState } from 'redux-oidc';
+import styles from './chat.module.scss';
+import { ChatState, connectStream, fetchRooms } from './chat.slice';
+import { Compose } from './compose';
+import { Messages } from './messages';
+import { RoomLabel } from './roomLabel';
+import { Rooms } from './rooms';
+
+export const Chat: FunctionComponent = () => {
+  const user = useSelector((state: { user: UserState }) => state.user.user);  
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (user?.access_token) {
+      dispatch(fetchRooms(user.access_token));
+      dispatch(connectStream(user.access_token))
+    }
+  });
+  return (
+    <main className={styles.chat}>
+      <div className={styles.rooms}>
+        <Rooms />
+      </div>
+      <div className={styles.room}>
+        <RoomLabel />
+        <div className={styles.messages}>
+          <Messages />
+        </div>
+        <div className={styles.message}>
+          <Compose />
+        </div>
+      </div>
+      {!user && (
+        <div className={styles.overlay}>
+          <p>Sign in to get chatting...</p>
+        </div>
+      )}
+    </main>
+  );
+};
