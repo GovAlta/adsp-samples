@@ -36,17 +36,16 @@ export const getConfiguration = createAsyncThunk(
     };
     try {
       const response = await fetch('/config/config.json');
-      const { accessServiceUrl, directoryServiceUrl, clientId, realm } =
-        await response.json();
+      const { access, directory } = await response.json();
 
-      config.accessServiceUrl = accessServiceUrl;
-      config.clientId = clientId;
-      config.realm = realm;
-      config.directoryServiceUrl = directoryServiceUrl;
+      config.accessServiceUrl = access.url;
+      config.clientId = access.client_id;
+      config.realm = access.realm;
+      config.directoryServiceUrl = directory.url;
     } catch (err) {
       // Fallback to environment if config.json retrieval fails.
     }
-    
+
     const directoryResponse = await fetch(
       `${config.directoryServiceUrl}/api/directory/v2/namespaces/platform`
     );
