@@ -5,7 +5,7 @@ import {
   createAction,
 } from '@reduxjs/toolkit';
 import { UserState } from 'redux-oidc';
-import { io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 import { ConfigState } from './config.slice';
 
 export const CHAT_FEATURE_KEY = 'chat';
@@ -118,12 +118,19 @@ export const downloadFile = createAsyncThunk(
   }
 );
 
+let socket: Socket;
 export const connectStream = createAsyncThunk(
   'chat/connectStream',
   async (token: string, { dispatch, getState }): Promise<void> => {
     const pushServiceUrl = (getState() as { config: ConfigState }).config
       .pushServiceUrl;
-    const socket = io(`${pushServiceUrl}/autotest`, {
+
+    if (socket) {
+      // Disconnect the previous connection if exists.
+      socket.disconnect();
+    }
+    
+    socket = io(`${pushServiceUrl}/autotest`, {
       query: {
         stream: 'chat-messages',
       },

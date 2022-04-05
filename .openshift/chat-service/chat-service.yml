@@ -66,7 +66,7 @@ objects:
     metadata:
       name: ${APP_NAME}
       namespace: ${PROJECT}
-    data:
+    stringData:
       CLIENT_SECRET: ''
   - apiVersion: v1
     kind: DeploymentConfig
