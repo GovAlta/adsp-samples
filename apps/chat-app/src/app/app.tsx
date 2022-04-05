@@ -20,7 +20,7 @@ export function App({ userManager }: AppProps) {
     <div className={styles.app}>
       <GoAHeader
         serviceLevel="alpha"
-        serviceName="Chat Service Example"
+        serviceName="ADSP Chat Example"
         serviceHome="/"
       >
         {user ? (

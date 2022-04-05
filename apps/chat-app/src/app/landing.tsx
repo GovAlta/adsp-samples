@@ -11,17 +11,38 @@ export const Landing: FunctionComponent = () => {
       />
       <main>
         <section>
-          <h2>Welcome to chat-app!</h2>
+          <h2>Welcome to ADSP chat example!</h2>
           <p>
-            Don't panic. Start editing the project to build your digital
-            service.
+            This is a full-stack example that utilizes
+            <a href="https://adsp.alberta.ca">
+              Alberta Digital Service Platform (ADSP)
+            </a>
+            .
           </p>
-          <h3>A few things you might want to do next:</h3>
+          <h3>Here is how it uses the platform:</h3>
           <ul className={styles.nextSteps}>
-            <li>Create the 'chat-app' client in your realm to let users</li>
             <li>
-              Make requests to the backend API by either updating nginx.conf or
-              enabling CORS on the API.
+              Sign in and authorize users using <b>Access service</b>.
+            </li>
+            <li>
+              Lookup URLs for other platform services from{' '}
+              <b>Directory service</b>.
+            </li>
+            <li>
+              Use <b>Configuration service</b> to configure rooms.
+            </li>
+            <li>
+              Send chat messages as domain events via the <b>Event service</b>.
+            </li>
+            <li>
+              "Event source" messages from the event log stored in{' '}
+              <b>Value service</b>.
+            </li>
+            <li>
+              Receive messages via a <b>Push service</b> websocket gateway.
+            </li>
+            <li>
+              Upload and download meme images via <b>File service</b>.
             </li>
           </ul>
         </section>
@@ -32,7 +53,7 @@ export const Landing: FunctionComponent = () => {
           <ul>
             <li className={styles.github}>
               <a
-                href="https://github.com/abgov"
+                href="https://github.com/GovAlta/adsp-samples"
                 rel="noreferrer"
                 target="_blank"
               >

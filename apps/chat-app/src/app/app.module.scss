@@ -4,13 +4,15 @@ body {
 
 main {
   display: grid;
-  grid-template-columns: repeat(6, auto);
+  grid-template-columns: auto;
 }
 
 section {
   grid-column: 2 / span 2;
   margin-top: 40px;
   margin-bottom: 40px;
+  margin-left: 32px;
+  margin-right: 32px;
 }
 
 .app {
@@ -24,7 +26,7 @@ section {
 .nextSteps li {
   margin-top: 0;
   margin-bottom: 0;
-  line-height: 50px;
+  line-height: 40px;
 }
 
 .nextSteps li button {
