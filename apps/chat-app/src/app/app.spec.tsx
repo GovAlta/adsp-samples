@@ -46,6 +46,6 @@ describe('App', () => {
       </BrowserRouter>
     );
 
-    expect(getByText('Welcome to chat-app!')).toBeTruthy();
+    expect(getByText('Welcome to ADSP chat example!')).toBeTruthy();
   });
 });
