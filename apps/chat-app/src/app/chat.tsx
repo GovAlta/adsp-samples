@@ -1,9 +1,10 @@
-import { DOMElement, FunctionComponent, useEffect, useLayoutEffect, useRef } from 'react';
+import React, { FunctionComponent, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { UserState } from 'redux-oidc';
 import styles from './chat.module.scss';
-import { ChatState, connectStream, fetchRooms } from './chat.slice';
+import { connectStream, fetchRooms } from './chat.slice';
 import { Compose } from './compose';
+import { ConnectLabel } from './connectLabel';
 import { Messages } from './messages';
 import { RoomLabel } from './roomLabel';
 import { Rooms } from './rooms';
@@ -22,6 +23,7 @@ export const Chat: FunctionComponent = () => {
     <main className={styles.chat}>
       <div className={styles.rooms}>
         <Rooms />
+        <ConnectLabel />
       </div>
       <div className={styles.room}>
         <RoomLabel />

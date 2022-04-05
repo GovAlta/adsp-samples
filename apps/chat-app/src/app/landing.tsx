@@ -13,7 +13,7 @@ export const Landing: FunctionComponent = () => {
         <section>
           <h2>Welcome to ADSP chat example!</h2>
           <p>
-            This is a full-stack example that utilizes
+            This is a full-stack example that utilizes{' '}
             <a href="https://adsp.alberta.ca">
               Alberta Digital Service Platform (ADSP)
             </a>

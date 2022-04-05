@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { Provider, useDispatch, useSelector } from 'react-redux';
+import { Provider, useSelector } from 'react-redux';
 import {
   CallbackComponent,
   loadUser,
@@ -30,7 +30,15 @@ const store = configureStore({
     [CONFIG_FEATURE_KEY]: startReducer,
     [CHAT_FEATURE_KEY]: chatReducer,
   },
-  devTools: process.env.NODE_ENV !== 'production',
+  middleware: (getDefaultMiddleware) => {
+    return getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ['redux-oidc/USER_FOUND'],
+        ignoredPaths: ['user.user'],
+      },
+    });
+  },
+  devTools: true,
   // Optional Redux store enhancers
   enhancers: [],
 });

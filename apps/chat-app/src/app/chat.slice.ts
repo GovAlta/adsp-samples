@@ -41,6 +41,7 @@ export interface Message {
 }
 
 export interface ChatState {
+  connected: boolean;
   files: Record<string, string>;
   rooms: Record<string, Room>;
   roomList: string[];
@@ -118,6 +119,14 @@ export const downloadFile = createAsyncThunk(
   }
 );
 
+export const connectedStream = createAction(
+  'chat/connectedStream'
+);
+
+export const disconnectedStream = createAction(
+  'chat/disconnectedStream'
+);
+
 let socket: Socket;
 export const connectStream = createAsyncThunk(
   'chat/connectStream',
@@ -139,7 +148,11 @@ export const connectStream = createAsyncThunk(
     });
 
     socket.on('connect', () => {
-      console.log(socket.id);
+      dispatch(connectedStream());
+    });
+
+    socket.on('disconnected', () => {
+      dispatch(disconnectedStream());
     });
 
     socket.on('chat-service:message-sent', (e: MessageEvent) => {
@@ -257,6 +270,7 @@ export const sendMessage = createAsyncThunk(
 );
 
 export const initialStartState: ChatState = {
+  connected: false,
   files: {},
   rooms: {},
   roomList: [],
@@ -285,6 +299,12 @@ export const chatReducer = createReducer(initialStartState, (builder) => {
     .addCase(fetchRooms.rejected, (state, action) => {
       state.loadingStatus['rooms'] = 'error';
       state.error = action.error.message;
+    })
+    .addCase(connectedStream, (state) => {
+      state.connected = true;
+    })
+    .addCase(disconnectedStream, (state) => {
+      state.connected = false;
     })
     .addCase(fetchMessages.pending, (state) => {
       state.loadingStatus['messages'] = 'loading';
