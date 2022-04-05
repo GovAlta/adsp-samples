@@ -38,9 +38,6 @@ jobs:
         with:
           node-version: '12'
       - run: npm ci
-        env: 
-          NPM_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 
       # Determine the last successful build of this (pipeline.yml) workflow and set it as the AFFECTED_BASE.
       - id: get_branch_name
@@ -127,7 +124,7 @@ jobs:
 
   deployStaging:
     runs-on: ubuntu-20.04
-    needs: build
+    needs: [build, deployDev]
     env:
       AFFECTED_APPS: ${{ needs.build.outputs.affected_apps }}
     environment:
@@ -157,7 +154,7 @@ jobs:
 
   deployProd:
     runs-on: ubuntu-20.04
-    needs: build
+    needs: [build, deployStaging]
     env:
       AFFECTED_APPS: ${{ needs.build.outputs.affected_apps }}
     environment:
