@@ -24,6 +24,10 @@ async function initializeApp(): Promise<express.Application> {
   app.use(cors());
   app.use(express.json());
 
+  if (environment.TRUSTED_PROXY) {
+    app.set('trust proxy', environment.TRUSTED_PROXY);
+  }
+
   const serviceId = adspId`urn:ads:autotest:chat-service`;
   const {
     configurationHandler,

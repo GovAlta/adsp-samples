@@ -8,6 +8,7 @@ export const environment = {
   ACCESS_SERVICE_URL: null,
   DIRECTORY_SERVICE_URL: null,
   CLIENT_SECRET: null,
+  TRUSTED_PROXY: 'uniquelocal',
   LOG_LEVEL: 'debug',
   ...process.env,
 };
