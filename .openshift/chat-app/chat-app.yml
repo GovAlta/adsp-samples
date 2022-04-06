@@ -86,6 +86,13 @@ objects:
         name: ${APP_NAME}
       strategy:
         type: Rolling
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+          requests:
+            cpu: 20m
+            memory: 50Mi
       template:
         metadata:
           labels:
