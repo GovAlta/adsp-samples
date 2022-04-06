@@ -119,6 +119,13 @@ jobs:
           do 
             oc tag $app:latest $app:dev
           done
+      - run: oc project ui-components-dev
+      - name: Apply Manifests
+        run: |
+          for app in $AFFECTED_APPS
+          do
+            oc process -f .openshift/$app/$app.yml -p INFRA_PROJECT=ui-components-build -p PROJECT=ui-components-dev -p DEPLOY_TAG=dev | oc apply -l apply-init!=true -f -
+          done
       - name: Deploy Dev
         run: |
           for app in $AFFECTED_APPS
@@ -149,6 +156,13 @@ jobs:
           do 
             oc tag $app:dev $app:staging
           done
+      - run: oc project ui-components-uat
+      - name: Apply Manifests
+        run: |
+          for app in $AFFECTED_APPS
+          do
+            oc process -f .openshift/$app/$app.yml -p INFRA_PROJECT=ui-components-build -p PROJECT=ui-components-uat -p DEPLOY_TAG=staging | oc apply -l apply-init!=true -f -
+          done
       - name: Deploy Staging
         run: |
           for app in $AFFECTED_APPS
@@ -178,6 +192,13 @@ jobs:
           for app in $AFFECTED_APPS
           do 
             oc tag $app:staging $app:prod
+          done
+      - run: oc project ui-components-prod
+      - name: Apply Manifests
+        run: |
+          for app in $AFFECTED_APPS
+          do
+            oc process -f .openshift/$app/$app.yml -p INFRA_PROJECT=ui-components-build -p PROJECT=ui-components-prod -p DEPLOY_TAG=prod | oc apply -l apply-init!=true -f -
           done
       - name: Deploy Prod
         run: |

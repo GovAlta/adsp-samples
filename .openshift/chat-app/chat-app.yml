@@ -28,11 +28,15 @@ objects:
   - apiVersion: v1
     kind: ImageStream
     metadata:
+      labels:
+        apply-init: true
       name: ${APP_NAME}
       namespace: ${INFRA_PROJECT}
   - apiVersion: v1
     kind: BuildConfig
     metadata:
+      labels:
+        apply-init: true
       name: ${APP_NAME}
       namespace: ${INFRA_PROJECT}
     spec:
@@ -55,6 +59,8 @@ objects:
   - apiVersion: v1
     kind: ConfigMap
     metadata:
+      labels:
+        apply-init: true
       name: ${APP_NAME}
       namespace: ${PROJECT}
     data:
@@ -75,15 +81,11 @@ objects:
       name: ${APP_NAME}
       namespace: ${PROJECT}
     spec:
-      replicas: 1
+      replicas: 2
       selector:
         name: ${APP_NAME}
       strategy:
-        activeDeadlineSeconds: 21600
-        recreateParams:
-          timeoutSeconds: 600
-        resources: {}
-        type: Recreate
+        type: Rolling
       template:
         metadata:
           labels:
@@ -96,11 +98,17 @@ objects:
                 - containerPort: 3333
                   name: http
                   protocol: TCP
-              resources: {}
               terminationMessagePath: /dev/termination-log
               volumeMounts:
                 - mountPath: /opt/app-root/src/config
                   name: config-volume
+              resources:
+                limits:
+                  cpu: 200m
+                  memory: 200Mi
+                requests:
+                  cpu: 20m
+                  memory: 50Mi
           dnsPolicy: ClusterFirst
           restartPolicy: Always
           schedulerName: default-scheduler
