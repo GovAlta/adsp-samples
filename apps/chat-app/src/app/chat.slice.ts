@@ -4,6 +4,7 @@ import {
   createSelector,
   createAction,
 } from '@reduxjs/toolkit';
+import { DateTime } from 'luxon';
 import { UserState } from 'redux-oidc';
 import { io, Socket } from 'socket.io-client';
 import { ConfigState } from './config.slice';
@@ -31,9 +32,9 @@ function instanceOfFileContent(
 }
 
 export interface Message {
-  roomId: string;
+  room: string;
   hash: string;
-  timestamp: Date;
+  timestamp: DateTime;
   message: MessageContent;
   from: {
     id: string;
@@ -53,26 +54,9 @@ export interface ChatState {
   error: string;
 }
 
-interface MessageValue {
-  timestamp: string;
-  value: {
-    payload: {
-      hash: string;
-      room: string;
-      message: MessageContent;
-      from: { name: string; id: string };
-    };
-  };
-}
-
+type MessageData = Omit<Message, 'timestamp'> & { timestamp: string };
 interface MessageEvent {
-  timestamp: string;
-  payload: {
-    hash: string;
-    room: string;
-    message: MessageContent;
-    from: { name: string; id: string };
-  };
+  payload: MessageData;
 }
 
 export const selectRoom = createAction('chat/selectRoom', (roomId: string) => ({
@@ -120,6 +104,12 @@ export const downloadFile = createAsyncThunk(
     });
 
     return dataUrl;
+  },
+  {
+    condition: ({ content }, { getState }) => {
+      const { chat } = getState() as { chat: ChatState };
+      return !chat.files[content.urn];
+    },
   }
 );
 
@@ -152,16 +142,16 @@ export const connectStream = createAsyncThunk(
         dispatch(disconnectedStream());
       });
 
-      socket.on('chat-service:message-sent', (e: MessageEvent) => {
+      socket.on('chat-service:message-sent', ({ payload }: MessageEvent) => {
         const message: Message = {
-          timestamp: new Date(e.timestamp),
-          roomId: e.payload.room,
-          hash: e.payload.hash,
+          timestamp: DateTime.fromISO(payload.timestamp),
+          room: payload.room,
+          hash: payload.hash,
           message:
-            typeof e.payload.message === 'string'
-              ? [e.payload.message]
-              : e.payload.message,
-          from: e.payload.from,
+            typeof payload.message === 'string'
+              ? [payload.message]
+              : payload.message,
+          from: payload.from,
         };
         dispatch(receivedMessage(message));
         for (const content of message.message) {
@@ -204,22 +194,21 @@ export const fetchMessages = createAsyncThunk(
       }
     );
 
-    const result: { results: MessageValue[] } = await response.json();
-    const messages: { roomId: string; results: Message[] } = {
-      roomId,
+    const result: {
+      results: MessageData[];
+      page: { after: string; next: string; size: number };
+    } = await response.json();
+    const messages: { results: Message[] } = {
       ...result,
       results: result.results
-        .map(({ timestamp: timestampValue, value }) => {
-          const timestamp = new Date(timestampValue);
+        .map(({ timestamp: timestampValue, hash, room, message, from }) => {
+          const timestamp = DateTime.fromISO(timestampValue);
           const result = {
             timestamp,
-            hash: value.payload.hash,
-            roomId: value.payload.room,
-            message:
-              typeof value.payload.message === 'string'
-                ? [value.payload.message]
-                : value.payload.message,
-            from: value.payload.from,
+            hash,
+            room,
+            message: typeof message === 'string' ? [message] : message,
+            from,
           };
 
           for (const content of result.message) {
@@ -227,11 +216,7 @@ export const fetchMessages = createAsyncThunk(
               dispatch(downloadFile({ token, content }));
             }
           }
-          return {
-            ...result,
-            // Compute hash for 'old' messages before service did this.
-            hash: result.hash || `${timestamp.getTime()}`,
-          };
+          return result;
         })
         .reverse(),
     };
@@ -242,12 +227,13 @@ export const fetchMessages = createAsyncThunk(
 
 export const sendMessage = createAsyncThunk(
   'chat/sendMessage',
-  async ({ message }: { message: MessageContent }, { getState }) => {
+  async ({ message }: { message: MessageContent }, { dispatch, getState }) => {
     const state = getState() as {
       user: UserState;
       chat: ChatState;
       config: ConfigState;
     };
+    const token = state.user.user.access_token;
     const fileServiceUrl = state.config.fileServiceUrl;
 
     const messageContent: MessageContent = [];
@@ -260,14 +246,15 @@ export const sendMessage = createAsyncThunk(
         const fileResponse = await fetch(`${fileServiceUrl}/file/v1/files`, {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${state.user.user.access_token}`,
+            Authorization: `Bearer ${token}`,
           },
           body: formData,
         });
 
         const { filename, urn } = await fileResponse.json();
+        dispatch(downloadFile({ token, content: { filename, urn } }));
         messageContent.push({ filename, urn });
-      } else {
+      } else if (item) {
         messageContent.push(item);
       }
     }
@@ -290,8 +277,8 @@ export const sendMessage = createAsyncThunk(
     } = await response.json();
     return {
       hash,
-      roomId: state.chat.selectedRoom,
-      timestamp: new Date(timestamp),
+      room: state.chat.selectedRoom,
+      timestamp: DateTime.fromISO(timestamp),
       from,
       message: resultMessage,
     } as Message;
@@ -345,9 +332,9 @@ export const chatReducer = createReducer(initialStartState, (builder) => {
         (messages, result) => ({ ...messages, [result.hash]: result }),
         state.messages
       );
-      state.roomMessages[action.payload.roomId] = Array.from(
+      state.roomMessages[action.meta.arg.roomId] = Array.from(
         new Set([
-          ...(state.roomMessages[action.payload.roomId] || []),
+          ...(state.roomMessages[action.meta.arg.roomId] || []),
           ...action.payload.results.map((result) => result.hash),
         ])
       );
@@ -362,9 +349,9 @@ export const chatReducer = createReducer(initialStartState, (builder) => {
     .addCase(sendMessage.fulfilled, (state, action) => {
       state.loadingStatus['send'] = 'loaded';
       state.messages[action.payload.hash] = action.payload;
-      state.roomMessages[action.payload.roomId] = Array.from(
+      state.roomMessages[action.payload.room] = Array.from(
         new Set([
-          ...(state.roomMessages[action.payload.roomId] || []),
+          ...(state.roomMessages[action.payload.room] || []),
           action.payload.hash,
         ])
       );
@@ -375,9 +362,9 @@ export const chatReducer = createReducer(initialStartState, (builder) => {
     })
     .addCase(receivedMessage, (state, action) => {
       state.messages[action.payload.hash] = action.payload;
-      state.roomMessages[action.payload.roomId] = Array.from(
+      state.roomMessages[action.payload.room] = Array.from(
         new Set([
-          ...(state.roomMessages[action.payload.roomId] || []),
+          ...(state.roomMessages[action.payload.room] || []),
           action.payload.hash,
         ])
       );
@@ -423,5 +410,5 @@ export const roomMessagesSelector = createSelector(
   (selected, roomMessages, messages) =>
     (roomMessages[selected] || [])
       .map((rm) => messages[rm])
-      .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
+      .sort((a, b) => a.timestamp.toUnixInteger() - b.timestamp.toUnixInteger())
 );

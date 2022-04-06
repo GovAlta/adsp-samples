@@ -1,6 +1,6 @@
 import { GoAElementLoader } from '@abgov/react-components';
-import { response } from 'express';
-import { FunctionComponent, useEffect, useRef, useState } from 'react';
+import { DateTime } from 'luxon';
+import { FunctionComponent, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   ChatState,
@@ -36,26 +36,39 @@ interface MessageItemProps {
   message: Message;
 }
 const MessageItem: FunctionComponent<MessageItemProps> = ({ message }) => {
-
   const endRef = useRef<HTMLDivElement>();
-  useEffect(() => endRef?.current?.scrollIntoView({ behavior: 'smooth' }), [endRef]);
+  useEffect(
+    () => endRef?.current?.scrollIntoView({ behavior: 'smooth' }),
+    [endRef]
+  );
 
-  return <li key={`${message.timestamp}`}>
-  <div>
-    <b>{message.from.name}</b>
-  </div>
-  <div>
-    {message.message?.map((item, idx) => {
-      return typeof item === 'string' ? (
-        <p key={idx}>{item}</p>
-      ) : (
-        <MessageFile key={idx} content={item} />
-      );
-    })}
-  </div>
-  <div ref={endRef} />
-</li>
-}
+  return (
+    <li key={`${message.hash}`}>
+      <div>
+        <b>{message.from.name}</b>
+        <span>
+          {message.timestamp.toFormat(
+            `h:mm a ${
+              message.timestamp.hasSame(DateTime.now(), 'day') ? '' : 'cccc'
+            } ${
+              message.timestamp.hasSame(DateTime.now(), 'week') ? '' : 'LLLL d'
+            }`
+          )}
+        </span>
+      </div>
+      <div>
+        {message.message?.map((item, idx) => {
+          return typeof item === 'string' ? (
+            <p key={idx}>{item}</p>
+          ) : (
+            <MessageFile key={idx} content={item} />
+          );
+        })}
+      </div>
+      <div ref={endRef} />
+    </li>
+  );
+};
 
 export const Messages: FunctionComponent = () => {
   const messages = useSelector(roomMessagesSelector);
@@ -70,7 +83,9 @@ export const Messages: FunctionComponent = () => {
 
   return (
     <ul className={styles.messages}>
-      {messages?.map((message, idx) => <MessageItem key={idx} message={message} />)}
+      {messages?.map((message, idx) => (
+        <MessageItem key={idx} message={message} />
+      ))}
     </ul>
   );
 };

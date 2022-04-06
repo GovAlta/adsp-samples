@@ -63,13 +63,13 @@ export const MessageSentEventDefinition: DomainEventDefinition = {
 
 export const messageSent = (
   user: User,
-  roomId: string,
+  room: string,
   message: string
 ): DomainEvent => {
   const timestamp = new Date();
   const payload = {
     timestamp,
-    room: roomId,
+    room,
     message,
     from: {
       id: user.id,
@@ -81,9 +81,9 @@ export const messageSent = (
   return {
     name: 'message-sent',
     timestamp,
-    correlationId: roomId,
+    correlationId: room,
     context: {
-      roomId,
+      roomId: room,
       fromUserId: user.id,
     },
     payload: {
