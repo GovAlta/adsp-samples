@@ -36,7 +36,8 @@ const store = configureStore({
         ignoredActions: [
           'redux-oidc/USER_FOUND',
           'chat/fetchMessages/fulfilled',
-          'chat/receivedMessage/fulfilled',
+          'chat/receivedMessage',
+          'chat/sendMessage/fulfilled',
         ],
         ignoredPaths: ['user.user', 'chat.messages'],
       },

@@ -32,6 +32,7 @@ function instanceOfFileContent(
 
 export interface Message {
   roomId: string;
+  hash: string;
   timestamp: Date;
   message: MessageContent;
   from: {
@@ -46,7 +47,8 @@ export interface ChatState {
   rooms: Record<string, Room>;
   roomList: string[];
   selectedRoom: string;
-  messages: Record<string, Message[]>;
+  messages: Record<string, Message>;
+  roomMessages: Record<string, string[]>;
   loadingStatus: Record<string, 'not loaded' | 'loading' | 'loaded' | 'error'>;
   error: string;
 }
@@ -55,6 +57,7 @@ interface MessageValue {
   timestamp: string;
   value: {
     payload: {
+      hash: string;
       room: string;
       message: MessageContent;
       from: { name: string; id: string };
@@ -65,6 +68,7 @@ interface MessageValue {
 interface MessageEvent {
   timestamp: string;
   payload: {
+    hash: string;
     room: string;
     message: MessageContent;
     from: { name: string; id: string };
@@ -119,13 +123,9 @@ export const downloadFile = createAsyncThunk(
   }
 );
 
-export const connectedStream = createAction(
-  'chat/connectedStream'
-);
+export const connectedStream = createAction('chat/connectedStream');
 
-export const disconnectedStream = createAction(
-  'chat/disconnectedStream'
-);
+export const disconnectedStream = createAction('chat/disconnectedStream');
 
 let socket: Socket;
 export const connectStream = createAsyncThunk(
@@ -134,44 +134,43 @@ export const connectStream = createAsyncThunk(
     const pushServiceUrl = (getState() as { config: ConfigState }).config
       .pushServiceUrl;
 
-    if (socket) {
-      // Disconnect the previous connection if exists.
-      socket.disconnect();
-    }
-    
-    socket = io(`${pushServiceUrl}/autotest`, {
-      query: {
-        stream: 'chat-messages',
-      },
-      withCredentials: true,
-      extraHeaders: { Authorization: `Bearer ${token}` },
-    });
+    // Create the connection if no previous connection or it is disconnected.
+    if (!socket || socket.disconnected) {
+      socket = io(`${pushServiceUrl}/autotest`, {
+        query: {
+          stream: 'chat-messages',
+        },
+        withCredentials: true,
+        extraHeaders: { Authorization: `Bearer ${token}` },
+      });
 
-    socket.on('connect', () => {
-      dispatch(connectedStream());
-    });
+      socket.on('connect', () => {
+        dispatch(connectedStream());
+      });
 
-    socket.on('disconnected', () => {
-      dispatch(disconnectedStream());
-    });
+      socket.on('disconnected', () => {
+        dispatch(disconnectedStream());
+      });
 
-    socket.on('chat-service:message-sent', (e: MessageEvent) => {
-      const message: Message = {
-        timestamp: new Date(e.timestamp),
-        roomId: e.payload.room,
-        message:
-          typeof e.payload.message === 'string'
-            ? [e.payload.message]
-            : e.payload.message,
-        from: e.payload.from,
-      };
-      dispatch(receivedMessage(message));
-      for (const content of message.message) {
-        if (instanceOfFileContent(content)) {
-          dispatch(downloadFile({ token, content }));
+      socket.on('chat-service:message-sent', (e: MessageEvent) => {
+        const message: Message = {
+          timestamp: new Date(e.timestamp),
+          roomId: e.payload.room,
+          hash: e.payload.hash,
+          message:
+            typeof e.payload.message === 'string'
+              ? [e.payload.message]
+              : e.payload.message,
+          from: e.payload.from,
+        };
+        dispatch(receivedMessage(message));
+        for (const content of message.message) {
+          if (instanceOfFileContent(content)) {
+            dispatch(downloadFile({ token, content }));
+          }
         }
-      }
-    });
+      });
+    }
   }
 );
 
@@ -181,32 +180,40 @@ export const fetchRooms = createAsyncThunk(
     const response = await fetch('/api/chat/v1/rooms', {
       headers: { Authorization: `Bearer ${token}` },
     });
-    
+
     if (response.status === 401 || response.status === 403) {
       throw new Error('Request chatter role to access...');
     }
-    
+
     return response.json();
   }
 );
 
 export const fetchMessages = createAsyncThunk(
   'chat/fetchMessages',
-  async ({ roomId }: { roomId: string }, { dispatch, getState }) => {
+  async (
+    { roomId, after }: { roomId: string; after?: string },
+    { dispatch, getState }
+  ) => {
     const state = getState() as { user: UserState };
     const token = state.user.user.access_token;
-    const response = await fetch(`/api/chat/v1/rooms/${roomId}/messages`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const response = await fetch(
+      `/api/chat/v1/rooms/${roomId}/messages?after=${after || ''}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
 
     const result: { results: MessageValue[] } = await response.json();
     const messages: { roomId: string; results: Message[] } = {
       roomId,
       ...result,
       results: result.results
-        .map(({ timestamp, value }) => {
+        .map(({ timestamp: timestampValue, value }) => {
+          const timestamp = new Date(timestampValue);
           const result = {
-            timestamp: new Date(timestamp),
+            timestamp,
+            hash: value.payload.hash,
             roomId: value.payload.room,
             message:
               typeof value.payload.message === 'string'
@@ -220,7 +227,11 @@ export const fetchMessages = createAsyncThunk(
               dispatch(downloadFile({ token, content }));
             }
           }
-          return result;
+          return {
+            ...result,
+            // Compute hash for 'old' messages before service did this.
+            hash: result.hash || `${timestamp.getTime()}`,
+          };
         })
         .reverse(),
     };
@@ -271,7 +282,19 @@ export const sendMessage = createAsyncThunk(
         body: JSON.stringify({ message: messageContent }),
       }
     );
-    return { roomId: state.chat.selectedRoom, ...(await response.json()) };
+    const {
+      hash,
+      timestamp,
+      message: resultMessage,
+      from,
+    } = await response.json();
+    return {
+      hash,
+      roomId: state.chat.selectedRoom,
+      timestamp: new Date(timestamp),
+      from,
+      message: resultMessage,
+    } as Message;
   }
 );
 
@@ -282,6 +305,7 @@ export const initialStartState: ChatState = {
   roomList: [],
   selectedRoom: null,
   messages: {},
+  roomMessages: {},
   loadingStatus: {},
   error: null,
 };
@@ -317,7 +341,16 @@ export const chatReducer = createReducer(initialStartState, (builder) => {
     })
     .addCase(fetchMessages.fulfilled, (state, action) => {
       state.loadingStatus['messages'] = 'loaded';
-      state.messages[action.payload.roomId] = action.payload.results;
+      state.messages = action.payload.results.reduce(
+        (messages, result) => ({ ...messages, [result.hash]: result }),
+        state.messages
+      );
+      state.roomMessages[action.payload.roomId] = Array.from(
+        new Set([
+          ...(state.roomMessages[action.payload.roomId] || []),
+          ...action.payload.results.map((result) => result.hash),
+        ])
+      );
     })
     .addCase(fetchMessages.rejected, (state, action) => {
       state.loadingStatus['messages'] = 'error';
@@ -326,18 +359,28 @@ export const chatReducer = createReducer(initialStartState, (builder) => {
     .addCase(sendMessage.pending, (state) => {
       state.loadingStatus['send'] = 'loading';
     })
-    .addCase(sendMessage.fulfilled, (state) => {
+    .addCase(sendMessage.fulfilled, (state, action) => {
       state.loadingStatus['send'] = 'loaded';
+      state.messages[action.payload.hash] = action.payload;
+      state.roomMessages[action.payload.roomId] = Array.from(
+        new Set([
+          ...(state.roomMessages[action.payload.roomId] || []),
+          action.payload.hash,
+        ])
+      );
     })
     .addCase(sendMessage.rejected, (state: ChatState, action) => {
       state.loadingStatus['send'] = 'error';
       state.error = action.error.message;
     })
     .addCase(receivedMessage, (state, action) => {
-      state.messages[action.payload.roomId] = [
-        ...state.messages[action.payload.roomId],
-        action.payload,
-      ];
+      state.messages[action.payload.hash] = action.payload;
+      state.roomMessages[action.payload.roomId] = Array.from(
+        new Set([
+          ...(state.roomMessages[action.payload.roomId] || []),
+          action.payload.hash,
+        ])
+      );
     })
     .addCase(downloadFile.pending, (state, action) => {
       state.loadingStatus[`download-${action.meta.arg.content.urn}`] =
@@ -374,6 +417,11 @@ export const roomMessagesSelector = createSelector(
   (state: { [CHAT_FEATURE_KEY]: ChatState }) =>
     state[CHAT_FEATURE_KEY].selectedRoom,
   (state: { [CHAT_FEATURE_KEY]: ChatState }) =>
+    state[CHAT_FEATURE_KEY].roomMessages,
+  (state: { [CHAT_FEATURE_KEY]: ChatState }) =>
     state[CHAT_FEATURE_KEY].messages,
-  (selected, messages) => messages[selected]
+  (selected, roomMessages, messages) =>
+    (roomMessages[selected] || [])
+      .map((rm) => messages[rm])
+      .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
 );

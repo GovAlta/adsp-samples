@@ -3,6 +3,7 @@ import {
   DomainEventDefinition,
   User,
 } from '@govalta/adsp-service-sdk';
+import * as hasha from 'hasha';
 
 export const MessageSentEventDefinition: DomainEventDefinition = {
   name: 'message-sent',
@@ -10,6 +11,13 @@ export const MessageSentEventDefinition: DomainEventDefinition = {
   payloadSchema: {
     type: 'object',
     properties: {
+      hash: {
+        type: 'string',
+      },
+      timestamp: {
+        type: 'string',
+        format: 'date-time',
+      },
       room: {
         type: 'string',
       },
@@ -22,7 +30,7 @@ export const MessageSentEventDefinition: DomainEventDefinition = {
             type: 'object',
             properties: {
               urn: { type: 'string' },
-            }
+            },
           },
           {
             type: 'array',
@@ -35,11 +43,11 @@ export const MessageSentEventDefinition: DomainEventDefinition = {
                   type: 'object',
                   properties: {
                     urn: { type: 'string' },
-                  }
-                }
-              ]
-            }
-          }
+                  },
+                },
+              ],
+            },
+          },
         ],
       },
       from: {
@@ -57,21 +65,30 @@ export const messageSent = (
   user: User,
   roomId: string,
   message: string
-): DomainEvent => ({
-  tenantId: null,
-  name: 'message-sent',
-  timestamp: new Date(),
-  correlationId: roomId,
-  context: {
-    roomId,
-    fromUserId: user.id,
-  },
-  payload: {
+): DomainEvent => {
+  const timestamp = new Date();
+  const payload = {
+    timestamp,
     room: roomId,
     message,
     from: {
       id: user.id,
       name: user.name,
     },
-  },
-});
+  };
+
+  // The message has no 'identity' per se, so the hash provides uniqueness.
+  return {
+    name: 'message-sent',
+    timestamp,
+    correlationId: roomId,
+    context: {
+      roomId,
+      fromUserId: user.id,
+    },
+    payload: {
+      ...payload,
+      hash: hasha(JSON.stringify({ payload }), { algorithm: 'sha1' }),
+    },
+  };
+};

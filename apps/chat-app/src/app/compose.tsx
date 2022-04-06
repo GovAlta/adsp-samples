@@ -47,7 +47,7 @@ export const Compose: FunctionComponent = () => {
                 }}
               />
             ) : (
-              <p>{item}</p>
+              <p key={idx}>{item}</p>
             );
           } else {
             return <ComposeFilePreview key={idx} file={item.file} />;

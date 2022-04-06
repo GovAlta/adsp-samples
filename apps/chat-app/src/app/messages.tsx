@@ -63,7 +63,7 @@ export const Messages: FunctionComponent = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (room) {
+    if (room && !messages.length) {
       dispatch(fetchMessages({ roomId: room.id }));
     }
   }, [dispatch, room]);
