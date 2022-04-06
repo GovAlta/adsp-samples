@@ -24,6 +24,13 @@
     tags: 
       - Chat
     description: Get information about a room.
+    parameters:
+      - name: roomId
+        description: ID of the room to get information for.
+        in: path
+        required: true
+        schema:
+          type: string
     responses:
       200:
         description: Request completed successfully.
@@ -44,6 +51,13 @@
     tags: 
       - Chat
     description: Gets messages in a room.
+    parameters:
+      - name: roomId
+        description: ID of the room to get messages for.
+        in: path
+        required: true
+        schema:
+          type: string
     responses:
       200:
         description: Request completed successfully.
@@ -54,6 +68,27 @@
               properties:
                 results:
                   type: array
+                  items:
+                    type: object
+                    properties:
+                      hash: 
+                        type: string
+                      timestamp:
+                        type: string
+                        format: date-time
+                      message:
+                        oneOf:
+                          - type: string
+                          - type: array
+                      room: 
+                        type: string
+                      from:
+                        type: object
+                        properties:
+                          id: 
+                            type: string
+                          name:
+                            type: string
                 page:
                   type: object
                   properties:
