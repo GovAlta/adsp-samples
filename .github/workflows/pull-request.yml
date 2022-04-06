@@ -1,0 +1,32 @@
+name: Pull Request Check
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+      # Checkout the source code.
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      - run: |
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" >> .npmrc
+          npm ci
+
+      # Project build steps lint, test, and build
+      - name: Lint
+        run: npx nx affected:lint --base=origin/${{ github.base_ref }}
+      - name: Test
+        run: npx nx affected:test --base=origin/${{ github.base_ref }}
+      - name: Build
+        run: npx nx affected:build --base=origin/${{ github.base_ref }} --configuration production
