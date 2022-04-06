@@ -29,21 +29,21 @@ objects:
     kind: ImageStream
     metadata:
       labels:
-        apply-init: true
+        apply-init: "true"
       name: ${APP_NAME}
       namespace: ${INFRA_PROJECT}
   - apiVersion: v1
     kind: BuildConfig
     metadata:
       labels:
-        apply-init: true
+        apply-init: "true"
       name: ${APP_NAME}
       namespace: ${INFRA_PROJECT}
     spec:
       output:
         to:
           kind: ImageStreamTag
-          name: '${APP_NAME}:latest'
+          name: "${APP_NAME}:latest"
       runPolicy: Serial
       source:
         binary: {}
@@ -60,7 +60,7 @@ objects:
     kind: ConfigMap
     metadata:
       labels:
-        apply-init: true
+        apply-init: "true"
       name: ${APP_NAME}
       namespace: ${PROJECT}
     data:
@@ -133,7 +133,7 @@ objects:
               - ${APP_NAME}
             from:
               kind: ImageStreamTag
-              name: '${APP_NAME}:${DEPLOY_TAG}'
+              name: "${APP_NAME}:${DEPLOY_TAG}"
               namespace: ${INFRA_PROJECT}
           type: ImageChange
   - apiVersion: v1
