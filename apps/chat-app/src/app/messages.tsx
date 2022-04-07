@@ -1,6 +1,6 @@
 import { GoAElementLoader } from '@abgov/react-components';
 import { DateTime } from 'luxon';
-import { FunctionComponent, useEffect, useRef } from 'react';
+import { FunctionComponent, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   ChatState,
@@ -36,12 +36,6 @@ interface MessageItemProps {
   message: Message;
 }
 const MessageItem: FunctionComponent<MessageItemProps> = ({ message }) => {
-  const endRef = useRef<HTMLDivElement>();
-  useEffect(
-    () => endRef?.current?.scrollIntoView({ behavior: 'smooth' }),
-    [endRef]
-  );
-
   return (
     <li key={`${message.hash}`}>
       <div>
@@ -65,7 +59,6 @@ const MessageItem: FunctionComponent<MessageItemProps> = ({ message }) => {
           );
         })}
       </div>
-      <div ref={endRef} />
     </li>
   );
 };
