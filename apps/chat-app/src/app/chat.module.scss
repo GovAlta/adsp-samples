@@ -15,7 +15,7 @@
   flex-direction: column;
   :first-child {
     margin-bottom: auto;
-  }  
+  }
 }
 
 .room {
@@ -35,6 +35,12 @@
   position: relative;
   flex: 1;
   min-height: 240px;
+}
+
+.paging {
+  display: block;
+  margin: 8px;
+  padding: 2px 14px
 }
 
 .overlay {

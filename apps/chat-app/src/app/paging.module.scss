@@ -1,0 +1,9 @@
+.paging {
+  display: None;
+  span {
+    float: right
+  }
+}
+.paging.active {
+  display: block
+}

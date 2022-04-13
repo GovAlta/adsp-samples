@@ -6,12 +6,13 @@ import { ChatState, connectStream, fetchRooms } from './chat.slice';
 import { Compose } from './compose';
 import { ConnectLabel } from './connectLabel';
 import { Messages } from './messages';
+import { Paging } from "./paging";
 import { RoomLabel } from './roomLabel';
 import { Rooms } from './rooms';
 
 export const Chat: FunctionComponent = () => {
-  const user = useSelector((state: { user: UserState }) => state.user.user);  
-  const error = useSelector((state: { chat: ChatState }) => state.chat.error);  
+  const user = useSelector((state: { user: UserState }) => state.user.user);
+  const error = useSelector((state: { chat: ChatState }) => state.chat.error);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -28,6 +29,9 @@ export const Chat: FunctionComponent = () => {
       </div>
       <div className={styles.room}>
         <RoomLabel />
+        <div className={styles.paging}>
+          <Paging />
+        </div>
         <div className={styles.messages}>
           <Messages />
         </div>
