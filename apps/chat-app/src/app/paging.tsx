@@ -12,11 +12,16 @@ const displayClass = (isActive: boolean): string => {
 export const Paging: FunctionComponent = () => {
   const room = useSelector(selectedRoomSelector);
   const isActive = room !== undefined;
+
   return <div className={displayClass(isActive)}>
-    <span>
-      <GoAButton buttonType="secondary" onClick={() => console.log("Toot!")}>
-        Load More
-      </GoAButton>
-    </span>
+    <div>
+      <div>
+        <GoAButton buttonType="secondary" onClick={() =>
+          console.log("toot!")
+        }>
+          Show More
+        </GoAButton>
+      </div>
+    </div>
   </div>
 }

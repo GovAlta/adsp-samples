@@ -8,6 +8,7 @@ import { DateTime } from 'luxon';
 import { UserState } from 'redux-oidc';
 import { io, Socket } from 'socket.io-client';
 import { ConfigState } from './config.slice';
+import {useSelector} from "react-redux";
 
 export const CHAT_FEATURE_KEY = 'chat';
 
@@ -42,6 +43,15 @@ export interface Message {
   };
 }
 
+// The message set describes a set of
+// messages to load.
+// Top = # of messages to load
+// after = the starting point.
+export interface MessageSet {
+  top: number;
+  after?: string;
+}
+
 export interface ChatState {
   connected: boolean;
   files: Record<string, string>;
@@ -49,6 +59,8 @@ export interface ChatState {
   roomList: string[];
   selectedRoom: string;
   messages: Record<string, Message>;
+  currentMessageSet: MessageSet;
+  nextMessageSet: MessageSet;
   roomMessages: Record<string, string[]>;
   loadingStatus: Record<string, 'not loaded' | 'loading' | 'loaded' | 'error'>;
   error: string;
@@ -179,16 +191,16 @@ export const fetchRooms = createAsyncThunk(
   }
 );
 
-export const fetchMessages = createAsyncThunk(
+export const  fetchMessages = createAsyncThunk(
   'chat/fetchMessages',
   async (
-    { roomId, after }: { roomId: string; after?: string },
+    { roomId, top, after }: { roomId: string; top: number, after?: string },
     { dispatch, getState }
   ) => {
     const state = getState() as { user: UserState };
     const token = state.user.user.access_token;
     const response = await fetch(
-      `/api/chat/v1/rooms/${roomId}/messages?after=${after || ''}`,
+      `/api/chat/v1/rooms/${roomId}/messages?top=${top}&after=${after || ''}`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
@@ -292,6 +304,8 @@ export const initialStartState: ChatState = {
   roomList: [],
   selectedRoom: null,
   messages: {},
+  currentMessageSet: {top: 3, after: ''},
+  nextMessageSet: {top: 3, after: ''},
   roomMessages: {},
   loadingStatus: {},
   error: null,
@@ -387,8 +401,7 @@ export const chatReducer = createReducer(initialStartState, (builder) => {
 });
 
 export const roomListSelector = createSelector(
-  (state: { [CHAT_FEATURE_KEY]: ChatState }) =>
-    state[CHAT_FEATURE_KEY].roomList,
+  (state: { [CHAT_FEATURE_KEY]: ChatState }) => state[CHAT_FEATURE_KEY].roomList,
   (state: { [CHAT_FEATURE_KEY]: ChatState }) => state[CHAT_FEATURE_KEY].rooms,
   (list, rooms) => list.map((room) => rooms[room])
 );
@@ -399,6 +412,9 @@ export const selectedRoomSelector = createSelector(
   (state: { [CHAT_FEATURE_KEY]: ChatState }) => state[CHAT_FEATURE_KEY].rooms,
   (selected, rooms) => rooms[selected]
 );
+
+export const currentMessageSetSelector =
+  (state: { [CHAT_FEATURE_KEY]: ChatState }) => state[CHAT_FEATURE_KEY].currentMessageSet
 
 export const roomMessagesSelector = createSelector(
   (state: { [CHAT_FEATURE_KEY]: ChatState }) =>

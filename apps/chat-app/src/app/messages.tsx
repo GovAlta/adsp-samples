@@ -6,6 +6,7 @@ import {
   ChatState,
   fetchMessages,
   FileContent,
+  currentMessageSetSelector,
   Message,
   roomMessagesSelector,
   selectedRoomSelector,
@@ -66,13 +67,14 @@ const MessageItem: FunctionComponent<MessageItemProps> = ({ message }) => {
 export const Messages: FunctionComponent = () => {
   const messages = useSelector(roomMessagesSelector);
   const room = useSelector(selectedRoomSelector);
+  const messageSet = useSelector(currentMessageSetSelector);
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (room && !messages.length) {
-      dispatch(fetchMessages({ roomId: room.id }));
+      dispatch(fetchMessages({ roomId: room.id, top: messageSet.top, after: messageSet.after }));
     }
-  }, [dispatch, room, messages]);
+  }, [dispatch, room, messages, messageSet]);
 
   return (
     <ul className={styles.messages}>
