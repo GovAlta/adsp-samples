@@ -1,14 +1,8 @@
-import {
-  createAsyncThunk,
-  createReducer,
-  createSelector,
-  createAction,
-} from '@reduxjs/toolkit';
-import { DateTime } from 'luxon';
-import { UserState } from 'redux-oidc';
-import { io, Socket } from 'socket.io-client';
-import { ConfigState } from './config.slice';
-import {useSelector} from "react-redux";
+import {createAction, createAsyncThunk, createReducer, createSelector,} from '@reduxjs/toolkit';
+import {DateTime} from 'luxon';
+import {UserState} from 'redux-oidc';
+import {io, Socket} from 'socket.io-client';
+import {ConfigState} from './config.slice';
 
 export const CHAT_FEATURE_KEY = 'chat';
 
@@ -70,6 +64,8 @@ type MessageData = Omit<Message, 'timestamp'> & { timestamp: string };
 interface MessageEvent {
   payload: MessageData;
 }
+
+export const loadMore = createAction("chat/loadMore")
 
 export const selectRoom = createAction('chat/selectRoom', (roomId: string) => ({
   payload: roomId,
@@ -210,7 +206,8 @@ export const  fetchMessages = createAsyncThunk(
       results: MessageData[];
       page: { after: string; next: string; size: number };
     } = await response.json();
-    const messages: { results: Message[] } = {
+
+    const messages: { results: Message[], next: string } = {
       ...result,
       results: result.results
         .map(({ timestamp: timestampValue, hash, room, message, from }) => {
@@ -231,6 +228,7 @@ export const  fetchMessages = createAsyncThunk(
           return result;
         })
         .reverse(),
+      next: result.page.next
     };
 
     return messages;
@@ -352,6 +350,7 @@ export const chatReducer = createReducer(initialStartState, (builder) => {
           ...action.payload.results.map((result) => result.hash),
         ])
       );
+      state.nextMessageSet = { ...state.nextMessageSet, after: action.payload.next }
     })
     .addCase(fetchMessages.rejected, (state, action) => {
       state.loadingStatus['messages'] = 'error';
@@ -397,6 +396,9 @@ export const chatReducer = createReducer(initialStartState, (builder) => {
     .addCase(downloadFile.rejected, (state, action) => {
       state.loadingStatus[`download-${action.meta.arg.content.urn}`] = 'error';
       state.error = action.error.message;
+    })
+    .addCase(loadMore, (state) => {
+        state.currentMessageSet = { ...state.nextMessageSet };
     });
 });
 

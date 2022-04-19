@@ -71,10 +71,10 @@ export const Messages: FunctionComponent = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (room && !messages.length) {
+    if (room) {
       dispatch(fetchMessages({ roomId: room.id, top: messageSet.top, after: messageSet.after }));
     }
-  }, [dispatch, room, messages, messageSet]);
+  }, [dispatch, room, messageSet]);
 
   return (
     <ul className={styles.messages}>
