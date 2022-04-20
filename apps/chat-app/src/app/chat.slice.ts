@@ -6,10 +6,21 @@ import {ConfigState} from './config.slice';
 
 export const CHAT_FEATURE_KEY = 'chat';
 
-interface Room {
+
+// The message set describes a set of messages to load.
+// Top = # of messages to load
+// after = the starting point.
+export interface MessageSet {
+  top: number;
+  after?: string;
+}
+
+export interface Room {
   id: string;
   name: string;
   description: string;
+  currentMessageSet: MessageSet;
+  nextMessageSet: MessageSet;
 }
 
 export interface FileContent {
@@ -37,15 +48,6 @@ export interface Message {
   };
 }
 
-// The message set describes a set of
-// messages to load.
-// Top = # of messages to load
-// after = the starting point.
-export interface MessageSet {
-  top: number;
-  after?: string;
-}
-
 export interface ChatState {
   connected: boolean;
   files: Record<string, string>;
@@ -53,8 +55,6 @@ export interface ChatState {
   roomList: string[];
   selectedRoom: string;
   messages: Record<string, Message>;
-  currentMessageSet: MessageSet;
-  nextMessageSet: MessageSet;
   roomMessages: Record<string, string[]>;
   loadingStatus: Record<string, 'not loaded' | 'loading' | 'loaded' | 'error'>;
   error: string;
@@ -302,8 +302,6 @@ export const initialStartState: ChatState = {
   roomList: [],
   selectedRoom: null,
   messages: {},
-  currentMessageSet: {top: 3, after: ''},
-  nextMessageSet: {top: 3, after: ''},
   roomMessages: {},
   loadingStatus: {},
   error: null,
@@ -321,7 +319,13 @@ export const chatReducer = createReducer(initialStartState, (builder) => {
       state.loadingStatus['rooms'] = 'loaded';
       state.roomList = action.payload.map((result) => result.id);
       state.rooms = action.payload.reduce(
-        (rooms, result) => ({ ...rooms, [result.id]: result }),
+        (rooms, result) => ({ ...rooms, [result.id]: {
+            id: result.id,
+            name: result.name,
+            description: result.description,
+            currentMessageSet: {top: 3, after: ''},
+            nextMessageSet: {top: 3, after: ''}
+          } }),
         {}
       );
     })
@@ -350,7 +354,9 @@ export const chatReducer = createReducer(initialStartState, (builder) => {
           ...action.payload.results.map((result) => result.hash),
         ])
       );
-      state.nextMessageSet = { ...state.nextMessageSet, after: action.payload.next }
+      state.rooms[state.selectedRoom].nextMessageSet = {
+        ...state.rooms[state.selectedRoom].nextMessageSet, after: action.payload.next
+      }
     })
     .addCase(fetchMessages.rejected, (state, action) => {
       state.loadingStatus['messages'] = 'error';
@@ -398,7 +404,7 @@ export const chatReducer = createReducer(initialStartState, (builder) => {
       state.error = action.error.message;
     })
     .addCase(loadMore, (state) => {
-        state.currentMessageSet = { ...state.nextMessageSet };
+        state.rooms[state.selectedRoom].currentMessageSet = { ...state.rooms[state.selectedRoom].nextMessageSet };
     });
 });
 
@@ -414,9 +420,6 @@ export const selectedRoomSelector = createSelector(
   (state: { [CHAT_FEATURE_KEY]: ChatState }) => state[CHAT_FEATURE_KEY].rooms,
   (selected, rooms) => rooms[selected]
 );
-
-export const currentMessageSetSelector =
-  (state: { [CHAT_FEATURE_KEY]: ChatState }) => state[CHAT_FEATURE_KEY].currentMessageSet
 
 export const roomMessagesSelector = createSelector(
   (state: { [CHAT_FEATURE_KEY]: ChatState }) =>

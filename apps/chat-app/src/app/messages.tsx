@@ -1,13 +1,12 @@
-import { GoAElementLoader } from '@abgov/react-components';
-import { DateTime } from 'luxon';
-import { FunctionComponent, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import {GoAElementLoader} from '@abgov/react-components';
+import {DateTime} from 'luxon';
+import {FunctionComponent, useEffect} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
 import {
   ChatState,
   fetchMessages,
   FileContent,
-  currentMessageSetSelector,
-  Message,
+  Message, Room,
   roomMessagesSelector,
   selectedRoomSelector,
 } from './chat.slice';
@@ -64,17 +63,24 @@ const MessageItem: FunctionComponent<MessageItemProps> = ({ message }) => {
   );
 };
 
+function needsDispatch(room: Room) {
+  return room &&
+    room.currentMessageSet.after !== undefined &&
+    room.currentMessageSet.after === room.nextMessageSet.after
+}
+
 export const Messages: FunctionComponent = () => {
   const messages = useSelector(roomMessagesSelector);
   const room = useSelector(selectedRoomSelector);
-  const messageSet = useSelector(currentMessageSetSelector);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (room) {
-      dispatch(fetchMessages({ roomId: room.id, top: messageSet.top, after: messageSet.after }));
+    if (needsDispatch(room)) {
+      dispatch(fetchMessages(
+        { roomId: room.id, top: room.currentMessageSet.top, after: room.currentMessageSet.after }
+      ));
     }
-  }, [dispatch, room, messageSet]);
+  }, [dispatch, room]);
 
   return (
     <ul className={styles.messages}>
