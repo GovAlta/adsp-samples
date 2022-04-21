@@ -1,9 +1,9 @@
 .paging {
   display: None;
-  span {
-    float: right
-  }
 }
 .paging.active {
-  display: block
+  display: block;
+  div {
+    text-align: right;
+  }
 }
