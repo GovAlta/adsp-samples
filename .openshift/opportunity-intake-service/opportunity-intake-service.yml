@@ -61,6 +61,15 @@ objects:
       TENANT_REALM: test
       ACCESS_SERVICE_URL: https://access.alpha.alberta.ca
   - apiVersion: v1
+    kind: Secret
+    metadata:
+      labels:
+        apply-init: "true"
+      name: ${APP_NAME}
+      namespace: ${PROJECT}
+    stringData:
+      CLIENT_SECRET: ''
+  - apiVersion: v1
     kind: DeploymentConfig
     metadata:
       name: ${APP_NAME}
@@ -84,6 +93,8 @@ objects:
             - name: ${APP_NAME}
               envFrom:
                 - configMapRef:
+                    name: ${APP_NAME}
+                - secretRef:
                     name: ${APP_NAME}
               env:
                 - name: port
