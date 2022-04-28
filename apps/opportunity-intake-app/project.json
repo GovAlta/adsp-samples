@@ -1,0 +1,92 @@
+{
+  "root": "apps/opportunity-intake-app",
+  "sourceRoot": "apps/opportunity-intake-app/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/web:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "compiler": "babel",
+        "outputPath": "dist/apps/opportunity-intake-app",
+        "index": "apps/opportunity-intake-app/src/index.html",
+        "baseHref": "/",
+        "main": "apps/opportunity-intake-app/src/main.tsx",
+        "polyfills": "apps/opportunity-intake-app/src/polyfills.ts",
+        "tsConfig": "apps/opportunity-intake-app/tsconfig.app.json",
+        "assets": [
+          "apps/opportunity-intake-app/src/favicon.ico",
+          "apps/opportunity-intake-app/src/assets",
+          {
+            "glob": "nginx.conf",
+            "input": "apps/opportunity-intake-app",
+            "output": "./"
+          }
+        ],
+        "styles": [],
+        "scripts": [],
+        "webpackConfig": "apps/opportunity-intake-app/webpack.conf.js"
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/web:dev-server",
+      "options": {
+        "buildTarget": "opportunity-intake-app:build",
+        "hmr": true,
+        "proxyConfig": "apps/opportunity-intake-app/proxy.conf.json"
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "opportunity-intake-app:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/opportunity-intake-app/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/opportunity-intake-app"],
+      "options": {
+        "jestConfig": "apps/opportunity-intake-app/jest.config.js",
+        "passWithNoTests": true
+      }
+    },
+    "apply-envs": {
+      "executor": "@abgov/nx-oc:apply",
+      "options": {
+        "ocProject": [
+          {
+            "project": "ui-components-dev",
+            "tag": "dev"
+          },
+          {
+            "project": "ui-components-uat",
+            "tag": "test"
+          },
+          {
+            "project": "ui-components-prod",
+            "tag": "prod"
+          }
+        ]
+      }
+    }
+  },
+  "tags": []
+}

@@ -1,0 +1,28 @@
+{
+  "root": "apps/opportunity-intake-app-e2e",
+  "sourceRoot": "apps/opportunity-intake-app-e2e/src",
+  "projectType": "application",
+  "targets": {
+    "e2e": {
+      "executor": "@nrwl/cypress:cypress",
+      "options": {
+        "cypressConfig": "apps/opportunity-intake-app-e2e/cypress.json",
+        "devServerTarget": "opportunity-intake-app:serve"
+      },
+      "configurations": {
+        "production": {
+          "devServerTarget": "opportunity-intake-app:serve:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/opportunity-intake-app-e2e/**/*.{js,ts}"]
+      }
+    }
+  },
+  "tags": [],
+  "implicitDependencies": ["opportunity-intake-app"]
+}

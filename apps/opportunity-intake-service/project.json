@@ -1,0 +1,65 @@
+{
+  "root": "apps/opportunity-intake-service",
+  "sourceRoot": "apps/opportunity-intake-service/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/opportunity-intake-service",
+        "main": "apps/opportunity-intake-service/src/main.ts",
+        "tsConfig": "apps/opportunity-intake-service/tsconfig.app.json",
+        "assets": ["apps/opportunity-intake-service/src/assets"]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false          
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/node:execute",
+      "options": {
+        "buildTarget": "opportunity-intake-service:build"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/opportunity-intake-service/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/opportunity-intake-service"],
+      "options": {
+        "jestConfig": "apps/opportunity-intake-service/jest.config.js",
+        "passWithNoTests": true
+      }
+    },
+    "apply-envs": {
+      "executor": "@abgov/nx-oc:apply",
+      "options": {
+        "ocProject": [
+          {
+            "project": "ui-components-dev",
+            "tag": "dev"
+          },
+          {
+            "project": "ui-components-uat",
+            "tag": "test"
+          },
+          {
+            "project": "ui-components-prod",
+            "tag": "prod"
+          }
+        ]
+      }
+    }
+  },
+  "tags": []
+}
