@@ -16,7 +16,7 @@ import {
   ConfigState,
   CONFIG_FEATURE_KEY,
   getConfiguration,
-  startReducer,
+  configReducer,
 } from './app/config.slice';
 import { chatReducer, CHAT_FEATURE_KEY } from './app/chat.slice';
 import { createUserManager } from './access';
@@ -27,7 +27,7 @@ import { GoAPageLoader } from '@abgov/react-components';
 const store = configureStore({
   reducer: {
     user: oidcReducer,
-    [CONFIG_FEATURE_KEY]: startReducer,
+    [CONFIG_FEATURE_KEY]: configReducer,
     [CHAT_FEATURE_KEY]: chatReducer,
   },
   middleware: (getDefaultMiddleware) => {

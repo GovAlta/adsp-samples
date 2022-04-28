@@ -75,6 +75,14 @@
           {
             "project": "ui-components-dev",
             "tag": "dev"
+          },
+          {
+            "project": "ui-components-uat",
+            "tag": "staging"
+          },
+          {
+            "project": "ui-components-prod",
+            "tag": "prod"
           }
         ]
       }

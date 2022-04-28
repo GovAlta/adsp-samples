@@ -47,7 +47,7 @@ export const getConfiguration = createAsyncThunk(
     }
 
     const directoryResponse = await fetch(
-      `${config.directoryServiceUrl}/api/directory/v2/namespaces/platform`
+      `${config.directoryServiceUrl}/api/directory/v2/namespaces/platform/entries`
     );
     const entries = await directoryResponse.json();
 
@@ -63,7 +63,7 @@ export const getConfiguration = createAsyncThunk(
   }
 );
 
-export const startReducer = createReducer(initialStartState, (builder) => {
+export const configReducer = createReducer(initialStartState, (builder) => {
   builder
     .addCase(getConfiguration.pending, (state: ConfigState) => {
       state.loadingStatus = 'loading';

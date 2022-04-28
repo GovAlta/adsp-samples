@@ -78,7 +78,7 @@
           },
           {
             "project": "ui-components-uat",
-            "tag": "test"
+            "tag": "staging"
           },
           {
             "project": "ui-components-prod",

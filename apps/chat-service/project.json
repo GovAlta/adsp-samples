@@ -17,7 +17,7 @@
         "production": {
           "optimization": true,
           "extractLicenses": true,
-          "inspect": false          
+          "inspect": false
         }
       }
     },
@@ -45,7 +45,20 @@
     "apply-envs": {
       "executor": "@abgov/nx-oc:apply",
       "options": {
-        "ocProject": ["ui-components-dev"]
+        "ocProject": [
+          {
+            "project": "ui-components-dev",
+            "tag": "dev"
+          },
+          {
+            "project": "ui-components-uat",
+            "tag": "staging"
+          },
+          {
+            "project": "ui-components-prod",
+            "tag": "prod"
+          }
+        ]
       }
     }
   },

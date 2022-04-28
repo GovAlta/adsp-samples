@@ -62,8 +62,8 @@ objects:
         {
           "access": {
             "url": "https://access.alpha.alberta.ca",
-            "realm": "test",
-            "client_id": "${APP_NAME}"
+            "realm": "",
+            "client_id": ""
           }
         }
   - apiVersion: v1
