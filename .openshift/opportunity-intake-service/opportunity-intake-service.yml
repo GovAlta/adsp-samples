@@ -124,18 +124,3 @@ objects:
         name: ${APP_NAME}
       sessionAffinity: None
       type: ClusterIP
-  - apiVersion: v1
-    kind: Route
-    metadata:
-      name: ${APP_NAME}
-      namespace: ${PROJECT}
-    spec:
-      port:
-        targetPort: http
-      tls:
-        termination: edge
-      to:
-        kind: Service
-        name: ${APP_NAME}
-        weight: 100
-      wildcardPolicy: None
