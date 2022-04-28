@@ -24,6 +24,11 @@ parameters:
     displayName: Deploy Tag
     value: latest
     required: true
+  - name: COMMIT_SHA
+    description: SHA of the commit that triggered the deployment.
+    displayName: Commit SHA
+    value: ''
+    required: true
 objects:
   - apiVersion: v1
     kind: ImageStream
@@ -98,6 +103,8 @@ objects:
         metadata:
           labels:
             name: ${APP_NAME}
+          annotations:
+            commit: ${COMMIT_SHA}
         spec:
           containers:
             - name: ${APP_NAME}

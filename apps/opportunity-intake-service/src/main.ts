@@ -14,6 +14,7 @@ import * as passport from 'passport';
 import { environment } from './environments/environment';
 import { applyOpportunityMiddleware } from './opportunity';
 import { ServiceRoles } from './opportunity/roles';
+import { promisify } from 'util';
 
 async function initializeApp(): Promise<express.Application> {
   const app = express();
@@ -106,11 +107,17 @@ async function initializeApp(): Promise<express.Application> {
     res.json(platform);
   });
 
+  const commit = await promisify(fs.readFile)(
+    '/etc/podinfo/commit',
+    'utf8'
+  ).catch(() => '');
+
   app.get('/', (req, res) => {
     const rootUrl = new URL(`${req.protocol}://${req.get('host')}`);
     res.send({
       name: 'Opportunity intake service',
       description: 'Service for intake of platform opportunities.',
+      commit,
       _links: {
         self: { href: new URL(req.originalUrl, rootUrl).href },
         health: { href: new URL('/health', rootUrl).href },
