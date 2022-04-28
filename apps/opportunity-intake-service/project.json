@@ -1,44 +1,43 @@
 {
-  "root": "apps/chat-service",
-  "sourceRoot": "apps/chat-service/src",
+  "root": "apps/opportunity-intake-service",
+  "sourceRoot": "apps/opportunity-intake-service/src",
   "projectType": "application",
   "targets": {
     "build": {
       "executor": "@nrwl/node:build",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/apps/chat-service",
-        "main": "apps/chat-service/src/main.ts",
-        "tsConfig": "apps/chat-service/tsconfig.app.json",
-        "assets": ["apps/chat-service/src/assets"],
-        "webpackConfig": "apps/chat-service/webpack.config.js"
+        "outputPath": "dist/apps/opportunity-intake-service",
+        "main": "apps/opportunity-intake-service/src/main.ts",
+        "tsConfig": "apps/opportunity-intake-service/tsconfig.app.json",
+        "assets": ["apps/opportunity-intake-service/src/assets"]
       },
       "configurations": {
         "production": {
           "optimization": true,
           "extractLicenses": true,
-          "inspect": false
+          "inspect": false          
         }
       }
     },
     "serve": {
       "executor": "@nrwl/node:execute",
       "options": {
-        "buildTarget": "chat-service:build"
+        "buildTarget": "opportunity-intake-service:build"
       }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/chat-service/**/*.ts"]
+        "lintFilePatterns": ["apps/opportunity-intake-service/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/chat-service"],
+      "outputs": ["coverage/apps/opportunity-intake-service"],
       "options": {
-        "jestConfig": "apps/chat-service/jest.config.js",
+        "jestConfig": "apps/opportunity-intake-service/jest.config.js",
         "passWithNoTests": true
       }
     },
