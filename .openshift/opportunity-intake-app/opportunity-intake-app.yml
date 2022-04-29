@@ -33,11 +33,15 @@ objects:
   - apiVersion: v1
     kind: ImageStream
     metadata:
+      labels:
+        apply-init: "true"
       name: ${APP_NAME}
       namespace: ${INFRA_PROJECT}
   - apiVersion: v1
     kind: BuildConfig
     metadata:
+      labels:
+        apply-init: "true"
       name: ${APP_NAME}
       namespace: ${INFRA_PROJECT}
     spec:
@@ -60,6 +64,8 @@ objects:
   - apiVersion: v1
     kind: ConfigMap
     metadata:
+      labels:
+        apply-init: "true"
       name: ${APP_NAME}
       namespace: ${PROJECT}
     data:
