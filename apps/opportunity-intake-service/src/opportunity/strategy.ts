@@ -13,7 +13,9 @@ export const FORM_DATA = 'formData';
 // This is a strategy used to serialize the form ID into the session.
 export const creatorStrategy = new CustomStrategy((req, done) => {
   const formId = req[FORM]?.id;
-  done(!formId ? new Error('form Id not found.') : null, formId);
+  done(!formId ? new Error('form Id not found.') : null, {
+    formData: { id: formId, data: {}, files: {} },
+  });
 });
 
 // This is a strategy that retrieves the form data with a one time code.

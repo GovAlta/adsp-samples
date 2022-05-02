@@ -3,8 +3,7 @@ import { Route, Switch } from 'react-router';
 
 import styles from './app.module.scss';
 import { Landing } from './landing';
-import { NewOpportunity } from './newOpportunity';
-import { Opportunity } from './opportunity';
+import { Submission } from './submission';
 
 export function App() {
   return (
@@ -19,11 +18,8 @@ export function App() {
       </Route>
       <main>
         <Switch>
-          <Route path="/submission/:formId">
-            <Opportunity />
-          </Route>
           <Route path="/submission">
-            <NewOpportunity />
+            <Submission />
           </Route>
         </Switch>
       </main>

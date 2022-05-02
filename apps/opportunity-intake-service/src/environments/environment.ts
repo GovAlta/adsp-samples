@@ -9,7 +9,7 @@ export const environment = {
   DIRECTORY_SERVICE_URL: null,
   CLIENT_ID: 'urn:ads:autotest:opportunity-intake-service',
   CLIENT_SECRET: null,
-  SESSION_SECRET: '',
+  SESSION_SECRET: 'some random local whatever',
   TRUSTED_PROXY: 'uniquelocal',
   LOG_LEVEL: 'debug',
   ...process.env,

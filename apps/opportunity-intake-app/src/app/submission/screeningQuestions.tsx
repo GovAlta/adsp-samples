@@ -1,14 +1,22 @@
-import { GoAButton } from '@abgov/react-components';
-import { GoAForm, GoAFormActions } from '@abgov/react-components/experimental';
-import { useHistory } from 'react-router';
+import { GoAButton, GoACheckbox } from '@abgov/react-components';
+import {
+  GoAForm,
+  GoAFormActions,
+  GoAFormItem,
+} from '@abgov/react-components/experimental';
+import { push } from 'connected-react-router';
+import { useDispatch } from 'react-redux';
 
 export const ScreeningQuestions = () => {
-  const history = useHistory();
+  const dispatch = useDispatch();
   return (
     <GoAForm>
-      <p>Testing</p>
+      <h3>Let start with some quick questions</h3>
+      <GoAFormItem>Question A?</GoAFormItem>
+      <GoAFormItem>Question B?</GoAFormItem>
+      <GoAFormItem>Question C?</GoAFormItem>
       <GoAFormActions alignment="right">
-        <GoAButton onClick={() => history.push(`form`)}>Next</GoAButton>
+        <GoAButton onClick={() => dispatch(push('new'))}>Next</GoAButton>
       </GoAFormActions>
     </GoAForm>
   );

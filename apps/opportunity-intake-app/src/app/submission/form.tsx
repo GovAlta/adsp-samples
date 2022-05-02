@@ -4,9 +4,9 @@ import {
   GoAFormActions,
   GoAFormItem,
 } from '@abgov/react-components/experimental';
+import { push } from 'connected-react-router';
 import { FunctionComponent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router';
 import { useDebouncedCallback } from 'use-debounce';
 import {
   FormData,
@@ -16,15 +16,13 @@ import {
 } from '../intake.slice';
 
 export const Form: FunctionComponent = () => {
-  const history = useHistory();
   const { id, data, files } = useSelector(
     (state: { [INTAKE_FEATURE_KEY]: IntakeState }) =>
       state[INTAKE_FEATURE_KEY].formData
   );
 
-  const [{ ministry = '', program = '', description = '' }, setData] = useState(
-    data || {}
-  );
+  const [localData, setLocalData] = useState(data);
+  const { ministry = '', program = '', description = '' } = localData;
   const dispatch = useDispatch();
   const dispatchUpdate = useDebouncedCallback(
     (formData: FormData) => dispatch(updateFormData({ formData })),
@@ -39,8 +37,8 @@ export const Form: FunctionComponent = () => {
           type="text"
           value={ministry}
           onChange={(e) => {
-            const update = { ...data, ministry: e.target.value };
-            setData(update);
+            const update = { ...localData, ministry: e.target.value };
+            setLocalData(update);
             dispatchUpdate({ id, files, data: update });
           }}
         />
@@ -52,8 +50,8 @@ export const Form: FunctionComponent = () => {
           type="text"
           value={program}
           onChange={(e) => {
-            const update = { ...data, program: e.target.value };
-            setData(update);
+            const update = { ...localData, program: e.target.value };
+            setLocalData(update);
             dispatchUpdate({ id, files, data: update });
           }}
         />
@@ -64,8 +62,8 @@ export const Form: FunctionComponent = () => {
         <textarea
           value={description}
           onChange={(e) => {
-            const update = { ...data, description: e.target.value };
-            setData(update);
+            const update = { ...localData, description: e.target.value };
+            setLocalData(update);
             dispatchUpdate({ id, files, data: update });
           }}
         />
@@ -81,20 +79,23 @@ export const Form: FunctionComponent = () => {
           <label>What are they trying to do?</label>
           <textarea />
         </GoAFormItem>
+        <GoAFormItem>
+          <label>How does the platform service help?</label>
+          <textarea />
+        </GoAFormItem>
       </div>
       <div>
         <h3> Supporting documents </h3>
-
+        <input type="file" />
+        <ul>
+          {Object.entries(files).map(([key, file]) => (
+            <div key={key}></div>
+          ))}
+        </ul>
       </div>
-      
+
       <GoAFormActions alignment="right">
-        <GoAButton
-          buttonType="secondary"
-          onClick={() => history.push('screen')}
-        >
-          Back
-        </GoAButton>
-        <GoAButton onClick={() => history.push('summary')}>Next</GoAButton>
+        <GoAButton onClick={() => dispatch(push('summary'))}>Next</GoAButton>
       </GoAFormActions>
     </GoAForm>
   );

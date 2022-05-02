@@ -3,6 +3,7 @@ import {
   createSelector,
   createSlice,
 } from '@reduxjs/toolkit';
+import { push } from 'connected-react-router';
 
 export const INTAKE_FEATURE_KEY = 'intake';
 
@@ -11,9 +12,15 @@ interface FormInfo {
   status: 'draft' | 'submitted';
 }
 
+interface OpportunityFormData {
+  ministry: string;
+  program: string;
+  description: string;
+}
+
 export interface FormData {
   id: string;
-  data: Record<string, string>;
+  data: OpportunityFormData;
   files: Record<string, string>;
 }
 
@@ -39,7 +46,7 @@ const initialIntakeState: IntakeState = {
 
 export const createForm = createAsyncThunk(
   'intake/createForm',
-  async ({ email, name }: { email: string; name: string }) => {
+  async ({ email, name }: { email: string; name: string }, { dispatch }) => {
     const response = await fetch('/api/v1/opportunities', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -47,6 +54,7 @@ export const createForm = createAsyncThunk(
     });
 
     const form: FormInfo = await response.json();
+    dispatch(push(`/submission/${form.id}`));
     return form;
   }
 );
