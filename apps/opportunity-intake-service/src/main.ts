@@ -31,7 +31,7 @@ async function initializeApp(): Promise<express.Application> {
       saveUninitialized: true,
       cookie: {
         httpOnly: true,
-        secure: false,
+        secure: 'auto',
         sameSite: 'strict',
         maxAge: 15 * 60 * 1000,
       },

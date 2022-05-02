@@ -1,9 +1,9 @@
 import { useSelector } from 'react-redux';
-import { Redirect, Route, Switch, useRouteMatch } from 'react-router';
+import { Route, Switch, useRouteMatch } from 'react-router';
 import { IntakeState, INTAKE_FEATURE_KEY } from '../intake.slice';
-import { Form } from './form';
+import { New } from './new';
+import { Opportunity } from './opportunity';
 import { ScreeningQuestions } from './screeningQuestions';
-import { Summary } from './summary';
 
 export const Submission = () => {
   const { path } = useRouteMatch<{ formId: string }>();
@@ -12,19 +12,19 @@ export const Submission = () => {
       state[INTAKE_FEATURE_KEY].form?.status
   );
   return (
-    <div>
+    <section>
+      <h2>Your platform idea</h2>
       <Switch>
         <Route exact path={`${path}/screen`}>
           <ScreeningQuestions />
         </Route>
-        <Route exact path={`${path}/form`}>
-          <Form />
+        <Route exact path={`${path}/new`}>
+          <New />
         </Route>
-        <Route exact path={`${path}/summary`}>
-          <Summary />
+        <Route path={`${path}/:formId`}>
+          <Opportunity />
         </Route>
-        <Redirect to={`${path}/screen`} />
       </Switch>
-    </div>
+    </section>
   );
 };
