@@ -1,26 +1,29 @@
-import {createAction, createAsyncThunk, createReducer, createSelector,} from '@reduxjs/toolkit';
-import {DateTime} from 'luxon';
-import {UserState} from 'redux-oidc';
-import {io, Socket} from 'socket.io-client';
-import {ConfigState} from './config.slice';
+import {
+  createAction,
+  createAsyncThunk,
+  createReducer,
+  createSelector,
+} from '@reduxjs/toolkit';
+import { DateTime } from 'luxon';
+import { UserState } from 'redux-oidc';
+import { io, Socket } from 'socket.io-client';
+import { ConfigState } from './config.slice';
 
 export const CHAT_FEATURE_KEY = 'chat';
-
 
 // The message set describes a set of messages to load.
 // Top = # of messages to load
 // after = the starting point.
 export interface MessageSet {
   top: number;
-  after?: string;
+  next?: string;
 }
 
 export interface Room {
   id: string;
   name: string;
   description: string;
-  currentMessageSet: MessageSet;
-  nextMessageSet: MessageSet;
+  set: MessageSet;
 }
 
 export interface FileContent {
@@ -64,8 +67,6 @@ type MessageData = Omit<Message, 'timestamp'> & { timestamp: string };
 interface MessageEvent {
   payload: MessageData;
 }
-
-export const loadMore = createAction("chat/loadMore")
 
 export const selectRoom = createAction('chat/selectRoom', (roomId: string) => ({
   payload: roomId,
@@ -187,10 +188,10 @@ export const fetchRooms = createAsyncThunk(
   }
 );
 
-export const  fetchMessages = createAsyncThunk(
+export const fetchMessages = createAsyncThunk(
   'chat/fetchMessages',
   async (
-    { roomId, top, after }: { roomId: string; top: number, after?: string },
+    { roomId, top, after }: { roomId: string; top: number; after?: string },
     { dispatch, getState }
   ) => {
     const state = getState() as { user: UserState };
@@ -207,7 +208,7 @@ export const  fetchMessages = createAsyncThunk(
       page: { after: string; next: string; size: number };
     } = await response.json();
 
-    const messages: { results: Message[], next: string } = {
+    const messages: { results: Message[]; next: string } = {
       ...result,
       results: result.results
         .map(({ timestamp: timestampValue, hash, room, message, from }) => {
@@ -220,15 +221,17 @@ export const  fetchMessages = createAsyncThunk(
             from,
           };
 
-          for (const content of result.message) {
-            if (instanceOfFileContent(content)) {
-              dispatch(downloadFile({ token, content }));
+          if (result.message) {
+            for (const content of result.message) {
+              if (instanceOfFileContent(content)) {
+                dispatch(downloadFile({ token, content }));
+              }
             }
           }
           return result;
         })
         .reverse(),
-      next: result.page.next
+      next: result.page.next,
     };
 
     return messages;
@@ -319,13 +322,15 @@ export const chatReducer = createReducer(initialStartState, (builder) => {
       state.loadingStatus['rooms'] = 'loaded';
       state.roomList = action.payload.map((result) => result.id);
       state.rooms = action.payload.reduce(
-        (rooms, result) => ({ ...rooms, [result.id]: {
+        (rooms, result) => ({
+          ...rooms,
+          [result.id]: {
             id: result.id,
             name: result.name,
             description: result.description,
-            currentMessageSet: {top: 3, after: ''},
-            nextMessageSet: {top: 3, after: ''}
-          } }),
+            set: { top: 10 },
+          },
+        }),
         {}
       );
     })
@@ -354,9 +359,10 @@ export const chatReducer = createReducer(initialStartState, (builder) => {
           ...action.payload.results.map((result) => result.hash),
         ])
       );
-      state.rooms[state.selectedRoom].nextMessageSet = {
-        ...state.rooms[state.selectedRoom].nextMessageSet, after: action.payload.next
-      }
+      state.rooms[state.selectedRoom].set = {
+        ...state.rooms[state.selectedRoom].set,
+        next: action.payload.next,
+      };
     })
     .addCase(fetchMessages.rejected, (state, action) => {
       state.loadingStatus['messages'] = 'error';
@@ -402,14 +408,12 @@ export const chatReducer = createReducer(initialStartState, (builder) => {
     .addCase(downloadFile.rejected, (state, action) => {
       state.loadingStatus[`download-${action.meta.arg.content.urn}`] = 'error';
       state.error = action.error.message;
-    })
-    .addCase(loadMore, (state) => {
-        state.rooms[state.selectedRoom].currentMessageSet = { ...state.rooms[state.selectedRoom].nextMessageSet };
     });
 });
 
 export const roomListSelector = createSelector(
-  (state: { [CHAT_FEATURE_KEY]: ChatState }) => state[CHAT_FEATURE_KEY].roomList,
+  (state: { [CHAT_FEATURE_KEY]: ChatState }) =>
+    state[CHAT_FEATURE_KEY].roomList,
   (state: { [CHAT_FEATURE_KEY]: ChatState }) => state[CHAT_FEATURE_KEY].rooms,
   (list, rooms) => list.map((room) => rooms[room])
 );

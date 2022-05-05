@@ -1,26 +1,36 @@
-import {FunctionComponent} from "react";
-import {GoAButton} from "@abgov/react-components";
-import styles from "./paging.module.scss";
-import {loadMore, selectedRoomSelector} from "./chat.slice";
-import {useDispatch, useSelector} from "react-redux";
-
-const displayClass = (isActive: boolean): string => {
-  // hide the component unless a room has been loaded
-  return styles.paging + (isActive ? " " + styles.active : "");
-}
+import { FunctionComponent } from 'react';
+import { GoAButton } from '@abgov/react-components';
+import { ChatState, fetchMessages, selectedRoomSelector } from './chat.slice';
+import { useDispatch, useSelector } from 'react-redux';
+import styles from './paging.module.scss';
 
 export const Paging: FunctionComponent = () => {
   const room = useSelector(selectedRoomSelector);
-  const isActive = room !== undefined;
-  const dispatch = useDispatch()
+  const isLoading = useSelector(
+    (state: { chat: ChatState }) => state.chat.loadingStatus['messages'] === 'loading'
+  );
+  const dispatch = useDispatch();
 
-  return <div className={displayClass(isActive)}>
-    <div>
-      <div>
-        <GoAButton buttonType="secondary" onClick={ () => { dispatch(loadMore()); console.log("loading More...") }}>
-          Show More
+  return (
+    <div className={styles.paging}>
+      {room?.set?.next && (
+        <GoAButton
+          disabled={isLoading}
+          buttonType="secondary"
+          onClick={() => {
+            dispatch(
+              fetchMessages({
+                roomId: room.id,
+                top: room.set.top,
+                after: room.set.next,
+              })
+            );
+            console.log('loading More...');
+          }}
+        >
+          Load more
         </GoAButton>
-      </div>
+      )}
     </div>
-  </div>
-}
+  );
+};

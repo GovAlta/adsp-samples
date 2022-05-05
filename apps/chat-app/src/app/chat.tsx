@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect } from 'react';
+import { FunctionComponent, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { UserState } from 'redux-oidc';
 import styles from './chat.module.scss';
@@ -6,7 +6,7 @@ import { ChatState, connectStream, fetchRooms } from './chat.slice';
 import { Compose } from './compose';
 import { ConnectLabel } from './connectLabel';
 import { Messages } from './messages';
-import { Paging } from "./paging";
+import { Paging } from './paging';
 import { RoomLabel } from './roomLabel';
 import { Rooms } from './rooms';
 
@@ -18,7 +18,7 @@ export const Chat: FunctionComponent = () => {
   useEffect(() => {
     if (user?.access_token) {
       dispatch(fetchRooms(user.access_token));
-      dispatch(connectStream(user.access_token))
+      dispatch(connectStream(user.access_token));
     }
   });
   return (
@@ -29,11 +29,9 @@ export const Chat: FunctionComponent = () => {
       </div>
       <div className={styles.room}>
         <RoomLabel />
-        <div className={styles.paging}>
-          <Paging />
-        </div>
         <div className={styles.messages}>
           <Messages />
+          <Paging />
         </div>
         <div className={styles.message}>
           <Compose />
