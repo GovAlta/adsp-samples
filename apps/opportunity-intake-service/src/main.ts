@@ -3,20 +3,38 @@
  * This is only a minimal backend to get started.
  */
 import { AdspId, GoAError, initializeService } from '@govalta/adsp-service-sdk';
+import axios from 'axios';
 import * as compression from 'compression';
+import * as expressRedis from 'connect-redis';
 import * as cors from 'cors';
 import * as express from 'express';
 import { ErrorRequestHandler } from 'express';
 import * as session from 'express-session';
-import helmet from 'helmet';
 import * as fs from 'fs';
+import helmet from 'helmet';
 import * as passport from 'passport';
+import { createClient } from 'redis';
+import { promisify } from 'util';
 import { environment } from './environments/environment';
 import { applyOpportunityMiddleware } from './opportunity';
 import { ServiceRoles } from './opportunity/roles';
-import { promisify } from 'util';
+
+const RedisStore = expressRedis(session);
+
+function connectRedis() {
+  const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } = environment;
+  if (REDIS_PASSWORD) {
+    return createClient(
+      `redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/0`
+    );
+  } else {
+    return null;
+  }
+}
 
 async function initializeApp(): Promise<express.Application> {
+  const redisClient = connectRedis();
+
   const app = express();
   app.use(compression());
   app.use(helmet());
@@ -24,7 +42,9 @@ async function initializeApp(): Promise<express.Application> {
   app.use(express.json());
   app.use(
     session({
-      store: new session.MemoryStore(),
+      store: redisClient
+        ? new RedisStore({ client: redisClient })
+        : new session.MemoryStore(),
       secret: environment.SESSION_SECRET,
       resave: false,
       rolling: true,
@@ -130,6 +150,8 @@ async function initializeApp(): Promise<express.Application> {
   const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
     if (err instanceof GoAError) {
       res.status(err.extra?.statusCode || 500).send(err.message);
+    } else if (axios.isAxiosError(err)) {
+      res.status(err.response?.status || 500).send(err.message);
     } else {
       res.sendStatus(500);
     }

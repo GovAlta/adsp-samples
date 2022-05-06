@@ -159,6 +159,7 @@ export const intakeSlice = createSlice({
       })
       .addCase(sendCode.pending, (state: IntakeState) => {
         state.sendCodeStatus = 'sending';
+        state.error = null;
       })
       .addCase(sendCode.fulfilled, (state: IntakeState) => {
         state.sendCodeStatus = 'sent';

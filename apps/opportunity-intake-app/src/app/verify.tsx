@@ -1,12 +1,17 @@
-import { GoAButton, GoAElementLoader } from '@abgov/react-components';
+import {
+  GoAButton,
+  GoACallout,
+  GoAElementLoader,
+} from '@abgov/react-components';
 import {
   GoAForm,
   GoAFormActions,
   GoAFormItem,
 } from '@abgov/react-components/experimental';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
+import { ActionButton } from './components/actionButton';
 import {
   getFormData,
   IntakeState,
@@ -16,12 +21,27 @@ import {
 
 export const Verify = () => {
   const { formId } = useParams<{ formId: string }>();
-  const sendStatus = useSelector(
-    (state: { [INTAKE_FEATURE_KEY]: IntakeState }) =>
-      state[INTAKE_FEATURE_KEY].sendCodeStatus
+  const { isSending, isAccessing } = useSelector(
+    (state: { [INTAKE_FEATURE_KEY]: IntakeState }) => ({
+      isSending: state[INTAKE_FEATURE_KEY].sendCodeStatus === 'sending',
+      isAccessing: state[INTAKE_FEATURE_KEY].loadingDataStatus === 'loading',
+    })
   );
+
+  const verifyError = useSelector(
+    (state: { [INTAKE_FEATURE_KEY]: IntakeState }) =>
+      state[INTAKE_FEATURE_KEY].error
+  );
+
   const [code, setCode] = useState('');
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (formId) {
+      dispatch(sendCode({ formId }));
+    }
+  }, [formId, dispatch]);
+
   return (
     <GoAForm>
       <p>Let's get your back to where you were</p>
@@ -36,23 +56,28 @@ export const Verify = () => {
         />
       </GoAFormItem>
       <GoAFormActions alignment="right">
-        <GoAButton
+        <ActionButton
           buttonType="secondary"
+          isExecuting={isSending}
           onClick={() => dispatch(sendCode({ formId }))}
         >
           Send code
-          <span>
-            <GoAElementLoader
-              visible={sendStatus === 'sending'}
-              baseColour="#fff"
-              spinnerColour="#0070c4"
-            />
-          </span>
-        </GoAButton>
-        <GoAButton onClick={() => dispatch(getFormData({ formId, code }))}>
+        </ActionButton>
+        <ActionButton
+          disabled={!code}
+          isExecuting={isAccessing}
+          onClick={() => dispatch(getFormData({ formId, code }))}
+        >
           Verify
-        </GoAButton>
+        </ActionButton>
       </GoAFormActions>
+      {verifyError && (
+        <GoACallout
+          type="emergency"
+          title="Access not verified"
+          content="The provided code could not be verified. Please try again."
+        />
+      )}
     </GoAForm>
   );
 };

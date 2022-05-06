@@ -29,7 +29,134 @@ parameters:
     displayName: Commit SHA
     value: ''
     required: true
+  - description: Password for the Redis connection user.
+    displayName: Redis Connection Password
+    from: "[a-zA-Z0-9]{24}"
+    generate: expression
+    name: REDIS_PASSWORD
 objects:
+  # Redis Objects
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      labels:
+        app: opportunity-intake-service
+        component: database
+        apply-init: "true"
+      name: opportunity-intake-redis
+    stringData:
+      database-password: ${REDIS_PASSWORD}
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        template.openshift.io/expose-uri: redis://{.spec.clusterIP}:{.spec.ports[?(.name=="redis")].port}
+      labels:
+        app: opportunity-intake-service
+        component: database
+      name: opportunity-intake-redis
+    spec:
+      ports:
+        - name: redis
+          nodePort: 0
+          port: 6379
+          protocol: TCP
+          targetPort: 6379
+      selector:
+        app: opportunity-intake-service
+        component: database
+      sessionAffinity: None
+      type: ClusterIP
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      annotations:
+        template.alpha.openshift.io/wait-for-ready: "true"
+      labels:
+        app: opportunity-intake-service
+        component: database
+      name: opportunity-intake-redis
+    spec:
+      replicas: 1
+      selector:
+        app: opportunity-intake-service
+        component: database
+      strategy:
+        type: Recreate
+        resources:
+          limits:
+            cpu: 200m
+            memory: 200Mi
+          requests:
+            cpu: 20m
+            memory: 50Mi
+      template:
+        metadata:
+          labels:
+            app: opportunity-intake-service
+            component: database
+        spec:
+          containers:
+            - capabilities: {}
+              env:
+                - name: REDIS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: database-password
+                      name: opportunity-intake-redis
+              image: " "
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                initialDelaySeconds: 60
+                tcpSocket:
+                  port: 6379
+                timeoutSeconds: 30
+              name: redis
+              ports:
+                - containerPort: 6379
+                  protocol: TCP
+              readinessProbe:
+                exec:
+                  command:
+                    - /bin/sh
+                    - -i
+                    - -c
+                    - test "$(redis-cli -h 127.0.0.1 -a $REDIS_PASSWORD ping)" == "PONG"
+                initialDelaySeconds: 60
+                timeoutSeconds: 1
+              resources:
+                requests:
+                  cpu: 20m
+                  memory: 100Mi
+                limits:
+                  cpu: 200m
+                  memory: 512Mi
+              securityContext:
+                capabilities: {}
+                privileged: false
+              terminationMessagePath: /dev/termination-log
+              volumeMounts:
+                - mountPath: /var/lib/redis/data
+                  name: opportunity-intake-redis-data
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          volumes:
+            - emptyDir:
+                medium: ""
+              name: opportunity-intake-redis-data
+      triggers:
+        - imageChangeParams:
+            automatic: true
+            containerNames:
+              - redis
+            from:
+              kind: ImageStreamTag
+              name: redis:5-el8
+              namespace: openshift
+            lastTriggeredImage: ""
+          type: ImageChange
+        - type: ConfigChange
+
   - apiVersion: v1
     kind: ImageStream
     metadata:
@@ -48,7 +175,7 @@ objects:
       output:
         to:
           kind: ImageStreamTag
-          name: '${APP_NAME}:latest'
+          name: "${APP_NAME}:latest"
       runPolicy: Serial
       source:
         binary: {}
@@ -79,8 +206,8 @@ objects:
       name: ${APP_NAME}
       namespace: ${PROJECT}
     stringData:
-      CLIENT_SECRET: ''
-      SESSION_SECRET: ''
+      CLIENT_SECRET: ""
+      SESSION_SECRET: ""
   - apiVersion: v1
     kind: DeploymentConfig
     metadata:
@@ -122,9 +249,16 @@ objects:
                     name: ${APP_NAME}
               env:
                 - name: port
-                  value: '3333'
+                  value: "3333"
                 - name: LOG_LEVEL
                   value: info
+                - name: REDIS_HOST
+                  value: opportunity-intake-redis
+                - name: REDIS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: database-password
+                      name: opportunity-intake-redis
               imagePullPolicy: IfNotPresent
               volumeMounts:
                 - name: podinfo
@@ -144,7 +278,7 @@ objects:
               - ${APP_NAME}
             from:
               kind: ImageStreamTag
-              name: '${APP_NAME}:${DEPLOY_TAG}'
+              name: "${APP_NAME}:${DEPLOY_TAG}"
               namespace: ${INFRA_PROJECT}
           type: ImageChange
   - apiVersion: v1
