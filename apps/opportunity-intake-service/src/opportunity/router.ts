@@ -34,7 +34,6 @@ export function createDraft(
         {
           definitionId: OPPORTUNITY_FORM_DEFINITION,
           applicant: {
-            userId: email.toLowerCase(),
             addressAs: name,
             channels: [
               {

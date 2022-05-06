@@ -6,13 +6,20 @@ import {
 } from '@abgov/react-components/experimental';
 import { push } from 'connected-react-router';
 import { FunctionComponent, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { createForm } from '../intake.slice';
+import { useDispatch, useSelector } from 'react-redux';
+import { ActionButton } from '../components/actionButton';
+import { createForm, IntakeState, INTAKE_FEATURE_KEY } from '../intake.slice';
 
 export const New: FunctionComponent = () => {
   const [email, setEmail] = useState<string>();
   const [name, setName] = useState<string>();
+
+  const isCreating = useSelector(
+    (state: { [INTAKE_FEATURE_KEY]: IntakeState }) =>
+      state[INTAKE_FEATURE_KEY].loadingFormStatus === 'loading'
+  );
   const dispatch = useDispatch();
+
   return (
     <section>
       <p>
@@ -48,13 +55,21 @@ export const New: FunctionComponent = () => {
             />
           </GoAFormItem>
           <GoAFormActions alignment="right">
-            <GoAButton buttonType="secondary" onClick={() => dispatch(push('/'))}>Cancel</GoAButton>
             <GoAButton
+              buttonType="secondary"
+              onClick={() => dispatch(push('/'))}
+            >
+              Cancel
+            </GoAButton>
+            <ActionButton
               disabled={!email || !name}
-              onClick={() => dispatch(createForm({ email, name }))}
+              isExecuting={isCreating}
+              onClick={() => {
+                dispatch(createForm({ email, name }));
+              }}
             >
               Next
-            </GoAButton>
+            </ActionButton>
           </GoAFormActions>
         </GoAForm>
       </form>

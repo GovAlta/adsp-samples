@@ -1,5 +1,5 @@
 import { useSelector } from 'react-redux';
-import { Route, Switch, useRouteMatch } from 'react-router';
+import { Redirect, Route, Switch, useRouteMatch } from 'react-router';
 import { IntakeState, INTAKE_FEATURE_KEY } from '../intake.slice';
 import { New } from './new';
 import { Opportunity } from './opportunity';
@@ -24,6 +24,7 @@ export const Submission = () => {
         <Route path={`${path}/:formId`}>
           <Opportunity />
         </Route>
+        <Redirect to={`${path}/screen`} />
       </Switch>
     </section>
   );
