@@ -2,15 +2,16 @@ import { GoAPageLoader } from '@abgov/react-components';
 import { FunctionComponent, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Redirect, useParams } from 'react-router';
-import { Acknowledge } from '../acknowledge';
+import { Acknowledge } from './acknowledge';
 import {
   getForm,
   getFormData,
   IntakeState,
   INTAKE_FEATURE_KEY,
 } from '../intake.slice';
-import { Verify } from '../verify';
+import { Verify } from './verify';
 import { Draft } from './draft';
+import { NotFound } from './notFound';
 
 export const Opportunity: FunctionComponent = () => {
   const { form, formData } = useSelector(
@@ -19,9 +20,12 @@ export const Opportunity: FunctionComponent = () => {
       formData: state[INTAKE_FEATURE_KEY].formData,
     })
   );
-  const loadingStatus = useSelector(
+
+  // Pending load of form or its data, then we're loading.
+  const isLoading = useSelector(
     (state: { [INTAKE_FEATURE_KEY]: IntakeState }) =>
-      state[INTAKE_FEATURE_KEY].loadingFormStatus
+      state[INTAKE_FEATURE_KEY].loadingFormStatus === 'loading' ||
+      state[INTAKE_FEATURE_KEY].loadingFormStatus === 'not loaded'
   );
   const dispatch = useDispatch();
   const { formId } = useParams<{ formId: string }>();
@@ -33,27 +37,22 @@ export const Opportunity: FunctionComponent = () => {
 
   return (
     <div>
-      <GoAPageLoader
-        message="Loading draft..."
-        visible={loadingStatus !== 'loaded' && loadingStatus !== 'error'}
-      />
+      <GoAPageLoader message="Loading draft..." visible={isLoading} />
       {
         // Form exists, is in draft, and form data not loaded.
-        form?.status === 'draft' && !formData && <Verify />
+        !isLoading && form?.status === 'draft' && !formData && <Verify />
       }
       {
         // Form exists, is in draft, and form data loaded.
-        form?.status === 'draft' && formData && <Draft />
+        !isLoading && form?.status === 'draft' && formData && <Draft />
       }
       {
         // Form exists, is not in draft
-        form?.status === 'submitted' && <Acknowledge />
+        !isLoading && form?.status === 'submitted' && <Acknowledge />
       }
       {
         // Form does not exist
-        !form && loadingStatus === 'loaded' && (
-          <Redirect to="/submission/screen" />
-        )
+        !isLoading && !form && <NotFound />
       }
     </div>
   );

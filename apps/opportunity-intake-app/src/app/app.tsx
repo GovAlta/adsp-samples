@@ -29,7 +29,7 @@ export function App() {
           <ul>
             <li className={styles.github}>
               <a
-                href="https://github.com/abgov"
+                href="https://github.com/GovAlta/adsp-samples"
                 rel="noreferrer"
                 target="_blank"
               >
