@@ -1,6 +1,6 @@
 import {
+  AnyAction,
   createAsyncThunk,
-  createSelector,
   createSlice,
 } from '@reduxjs/toolkit';
 import { push } from 'connected-react-router';
@@ -12,15 +12,21 @@ interface FormInfo {
   status: 'draft' | 'submitted';
 }
 
-interface OpportunityFormData {
+export interface OpportunityData {
   ministry: string;
   program: string;
+  team: string;
   description: string;
+  examples: {
+    users: string;
+    need: string;
+    use: string;
+  }[];
 }
 
-export interface FormData {
+export interface OpportunityForm {
   id: string;
-  data: OpportunityFormData;
+  data: OpportunityData;
   files: Record<string, string>;
 }
 
@@ -31,7 +37,7 @@ export interface IntakeState {
   savingStatus: 'not saved' | 'saving' | 'saved' | 'error';
   error: string;
   form: FormInfo;
-  formData: FormData;
+  formData: OpportunityForm;
 }
 
 const initialIntakeState: IntakeState = {
@@ -96,21 +102,26 @@ export const getFormData = createAsyncThunk(
       }
     );
 
-    const formData: FormData = await response.json();
+    const formData: OpportunityForm = await response.json();
     return formData;
   }
 );
 
 export const updateFormData = createAsyncThunk(
   'intake/updateFormData',
-  async ({ formData }: { formData: FormData }) => {
+  async ({ formData, followUp }: { formData: OpportunityForm, followUp?: AnyAction }, { dispatch }) => {
     const response = await fetch(`/api/v1/opportunities/${formData.id}/data`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ data: formData.data, files: formData.files }),
     });
 
-    const updatedData: FormData = await response.json();
+    const updatedData: OpportunityForm = await response.json();
+
+    if (followUp) {
+      dispatch(followUp);
+    }
+
     return updatedData;
   }
 );

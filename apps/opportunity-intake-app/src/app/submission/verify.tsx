@@ -11,13 +11,13 @@ import {
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { ActionButton } from './components/actionButton';
+import { ActionButton } from '../components/actionButton';
 import {
   getFormData,
   IntakeState,
   INTAKE_FEATURE_KEY,
   sendCode,
-} from './intake.slice';
+} from '../intake.slice';
 
 export const Verify = () => {
   const { formId } = useParams<{ formId: string }>();

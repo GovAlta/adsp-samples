@@ -25,10 +25,11 @@ export function codeStrategy(
 ): Strategy {
   return new CustomStrategy(async (req, done) => {
     try {
-      if (req.user) {
+      const { formId } = req.params;
+
+      if (req.user?.['formData'].id === formId) {
         done(null, req.user);
       } else {
-        const { formId } = req.params;
         const { code } = req.query;
 
         const formServiceUrl = await directory.getServiceUrl(
