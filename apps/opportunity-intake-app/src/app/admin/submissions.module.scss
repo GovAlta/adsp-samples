@@ -1,0 +1,33 @@
+.submissions {
+  min-height: 500px;
+}
+
+.submissions table {
+  width: 100%;
+  border-spacing: 0;
+}
+
+.submissions table th {
+  text-align: left;
+  border-bottom: 2px solid hsla(216, 10%, 90%, 1);
+  padding: 0 16px 8px 0;
+}
+
+
+.submissions table th:last-child {
+  text-align: right;
+}
+
+.submissions table td:last-child {
+  text-align: right;
+}
+
+.submissions table td {
+  border-bottom: 1px solid hsla(216, 10%, 90%, 1);
+  padding: 8px 16px 8px 0;
+}
+
+.details {
+  min-height: 150px;
+  text-align: left;
+}

@@ -3,9 +3,14 @@ import { push } from 'connected-react-router';
 
 export const INTAKE_FEATURE_KEY = 'intake';
 
-interface FormInfo {
+export interface FormInfo {
   id: string;
-  status: 'draft' | 'submitted';
+  created: string;
+  submitted: string;
+  status: string;
+  applicant: {
+    addressAs: string;
+  };
 }
 
 interface FileInfo {
@@ -199,7 +204,7 @@ export const updateFormData = createAsyncThunk(
 
 export const submitForm = createAsyncThunk(
   'intake/submitForm',
-  async ({ formId }: { formId: string }, { dispatch, getState }) => {
+  async ({ formId }: { formId: string }, { dispatch }) => {
     const response = await fetch(`/api/v1/opportunities/${formId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -239,8 +244,6 @@ export const intakeSlice = createSlice({
       .addCase(getForm.fulfilled, (state: IntakeState, action) => {
         state.loadingFormStatus = 'loaded';
         state.form = action.payload;
-        state.formData = null;
-        state.files = {};
       })
       .addCase(getForm.rejected, (state: IntakeState, action) => {
         state.loadingFormStatus = 'error';

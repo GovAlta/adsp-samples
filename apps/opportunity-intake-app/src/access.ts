@@ -22,6 +22,7 @@ export function createUserManager({
     response_type: 'code',
     authority: `${url}/auth/realms/${realm}`,
     automaticSilentRenew: true,
+    extraQueryParams: { kc_idp_hint: 'core' },
   };
   return createOidcUserManager(settings);
 }
