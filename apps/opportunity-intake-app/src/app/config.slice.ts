@@ -8,6 +8,7 @@ export interface ConfigState {
   realm: string;
   accessServiceUrl: string;
   directoryServiceUrl: string;
+  formServiceUrl: string;
   loadingStatus: 'not loaded' | 'loading' | 'loaded' | 'error';
   error: string;
 }
@@ -17,6 +18,7 @@ export const initialStartState: ConfigState = {
   realm: null,
   accessServiceUrl: null,
   directoryServiceUrl: null,
+  formServiceUrl: null,
   loadingStatus: 'not loaded',
   error: null,
 };
@@ -45,9 +47,14 @@ export const getConfiguration = createAsyncThunk(
     const directoryResponse = await fetch(
       `${config.directoryServiceUrl}/api/directory/v2/namespaces/platform/entries`
     );
-    const _entries = await directoryResponse.json();
+    const entries = await directoryResponse.json();
 
-    return { ...config };
+    return {
+      ...config,
+      formServiceUrl: entries.find(
+        (entry) => entry.urn === 'urn:ads:platform:form-service'
+      )?.url,
+    };
   }
 );
 
@@ -62,6 +69,7 @@ export const configReducer = createReducer(initialStartState, (builder) => {
       state.realm = action.payload.realm;
       state.accessServiceUrl = action.payload.accessServiceUrl;
       state.directoryServiceUrl = action.payload.directoryServiceUrl;
+      state.formServiceUrl = action.payload.formServiceUrl;
     })
     .addCase(getConfiguration.rejected, (state: ConfigState, action) => {
       state.loadingStatus = 'error';

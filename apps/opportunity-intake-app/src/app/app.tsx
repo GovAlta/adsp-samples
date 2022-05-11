@@ -1,18 +1,41 @@
-import { GoAHeader } from '@abgov/react-components';
-import { Route, Switch } from 'react-router';
+import { GoAButton, GoAHeader } from '@abgov/react-components';
+import { UserManager } from 'oidc-client';
+import { FunctionComponent } from 'react';
+import { useSelector } from 'react-redux';
+import { Redirect, Route, Switch, useLocation } from 'react-router';
+import { UserState } from 'redux-oidc';
 
 import styles from './app.module.scss';
 import { Landing } from './landing';
 import { Submission } from './submission';
+import { Admin } from './admin';
 
-export function App() {
+interface AppProps {
+  userManager: UserManager;
+}
+
+export const App: FunctionComponent<AppProps> = ({ userManager }) => {
+  const user = useSelector((state: { user: UserState }) => state.user.user);
+  const location = useLocation();
+
   return (
     <div className={styles.app}>
       <GoAHeader
         serviceLevel="alpha"
         serviceName="Platform Opportunities"
         serviceHome="/"
-      />
+      >
+        {location.pathname.startsWith('/admin') &&
+          (user ? (
+            <GoAButton onClick={() => userManager.signoutRedirect()}>
+              Sign Out
+            </GoAButton>
+          ) : (
+            <GoAButton onClick={() => userManager.signinRedirect()}>
+              Sign In
+            </GoAButton>
+          ))}
+      </GoAHeader>
       <Route exact path="/">
         <Landing />
       </Route>
@@ -21,6 +44,10 @@ export function App() {
           <Route path="/submission">
             <Submission />
           </Route>
+          <Route path="/admin">
+            <Admin />
+          </Route>
+          <Redirect to="/" />
         </Switch>
       </main>
       <footer className={styles.footer}>
@@ -41,6 +68,6 @@ export function App() {
       </footer>
     </div>
   );
-}
+};
 
 export default App;
