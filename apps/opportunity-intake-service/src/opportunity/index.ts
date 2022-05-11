@@ -3,10 +3,10 @@ import { Application } from 'express';
 import { createOpportunityRouter, RouterProps } from './router';
 import { codeStrategy, creatorStrategy } from './strategy';
 
-export function applyOpportunityMiddleware(
+export async function applyOpportunityMiddleware(
   app: Application,
   { passport, directory, tokenProvider }: RouterProps
-): Application {
+): Promise<Application> {
   passport.use('creator', creatorStrategy);
   passport.use('code', codeStrategy(directory, tokenProvider));
   passport.serializeUser((user, done) => {
@@ -16,7 +16,7 @@ export function applyOpportunityMiddleware(
     done(null, user);
   });
 
-  const router = createOpportunityRouter({
+  const router = await createOpportunityRouter({
     passport,
     directory,
     tokenProvider,

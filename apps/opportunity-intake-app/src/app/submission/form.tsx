@@ -51,7 +51,7 @@ export const Form: FunctionComponent = () => {
         }}
       />
 
-      <DocumentsSection files={files} />
+      <DocumentsSection formId={id} files={files} />
 
       <GoAFormActions alignment="right">
         <ActionButton

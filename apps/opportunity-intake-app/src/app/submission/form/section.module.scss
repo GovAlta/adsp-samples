@@ -22,3 +22,12 @@
 .section :global(.goa-form-item) > div {
   padding: 3px 4px;
 }
+
+.section .fileUpload {
+  display: flex;
+  flex-direction: row;
+}
+
+.section .fileUpload > button {
+  margin-left: auto;
+}

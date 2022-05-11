@@ -55,7 +55,7 @@ export const Summary = () => {
         }}
       />
 
-      <DocumentsSection showSummary={true} files={files} />
+      <DocumentsSection formId={id} showSummary={true} files={files} />
 
       <GoAFormActions alignment="right">
         <GoAButton

@@ -104,7 +104,7 @@ async function initializeApp(): Promise<express.Application> {
 
   passport.use('tenant', tenantStrategy);
 
-  applyOpportunityMiddleware(app, { passport, directory, tokenProvider });
+  await applyOpportunityMiddleware(app, { passport, directory, tokenProvider });
 
   let swagger = null;
   app.use('/swagger/docs/v1', (_req, res) => {
