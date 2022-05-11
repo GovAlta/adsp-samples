@@ -1,11 +1,13 @@
 import {
+  AdspId,
   adspId,
+  GoAError,
   ServiceDirectory,
   TokenProvider,
-  UnauthorizedUserError,
 } from '@govalta/adsp-service-sdk';
 import axios from 'axios';
 import { RequestHandler, Router } from 'express';
+import * as proxy from 'express-http-proxy';
 import { PassportStatic } from 'passport';
 import { FORM, FORM_DATA } from './strategy';
 import { FormInfo, OpportunityFormData } from './types';
@@ -15,6 +17,20 @@ export interface RouterProps {
   directory: ServiceDirectory;
   tokenProvider: TokenProvider;
 }
+
+const assertAuthenticated: RequestHandler = (req, _res, next) => {
+  try {
+    const { formId } = req.params;
+    if (req.user?.[FORM_DATA]?.id !== formId) {
+      throw new GoAError('User not authorized to access submission.', {
+        statusCode: 401,
+      });
+    }
+    next();
+  } catch (err) {
+    next(err);
+  }
+};
 
 const OPPORTUNITY_FORM_DEFINITION = 'opportunity-intake';
 export function createDraft(
@@ -134,10 +150,6 @@ export function updateDraft(
   return async (req, res, next) => {
     try {
       const { formId } = req.params;
-      if (req.user?.[FORM_DATA]?.id !== formId) {
-        throw new UnauthorizedUserError('update draft', null);
-      }
-
       const formServiceUrl = await directory.getServiceUrl(
         adspId`urn:ads:platform:form-service`
       );
@@ -158,11 +170,92 @@ export function updateDraft(
   };
 }
 
-export function createOpportunityRouter({
+export function getFormFile(
+  directory: ServiceDirectory,
+  tokenProvider: TokenProvider
+): RequestHandler {
+  return async (req, res, next) => {
+    try {
+      const { fileId } = req.params;
+      const formData: OpportunityFormData = req.user[FORM_DATA];
+      const file = formData?.files?.[fileId];
+      if (!file) {
+        throw new GoAError('Form file not found.', { statusCode: 404 });
+      }
+
+      const fileResourceId = AdspId.parse(file);
+
+      const fileServiceUrl = await directory.getServiceUrl(
+        adspId`urn:ads:platform:file-service`
+      );
+      const token = await tokenProvider.getAccessToken();
+      const { data } = await axios.get(
+        new URL(`/file/v1${fileResourceId.resource}`, fileServiceUrl).href,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      res.send(data);
+    } catch (err) {
+      next(err);
+    }
+  };
+}
+
+export function deleteFormFile(
+  directory: ServiceDirectory,
+  tokenProvider: TokenProvider
+): RequestHandler {
+  return async (req, res, next) => {
+    try {
+      const { formId, fileId } = req.params;
+      const formData: OpportunityFormData = req.user[FORM_DATA];
+      const file = formData?.files?.[fileId];
+      if (!file) {
+        throw new GoAError('Form file not found.', { statusCode: 404 });
+      }
+
+      const fileResourceId = AdspId.parse(file);
+      const fileServiceUrl = await directory.getServiceUrl(
+        adspId`urn:ads:platform:file-service`
+      );
+      let token = await tokenProvider.getAccessToken();
+      await axios.delete(
+        new URL(`/file/v1${fileResourceId.resource}`, fileServiceUrl).href,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const formServiceUrl = await directory.getServiceUrl(
+        adspId`urn:ads:platform:form-service`
+      );
+      token = await tokenProvider.getAccessToken();
+
+      delete formData.files[fileId];
+      const { data } = await axios.put<OpportunityFormData>(
+        new URL(`/form/v1/forms/${formId}/data`, formServiceUrl).href,
+        formData,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      req.session['passport'].user.formData = data;
+
+      res.send({ deleted: true });
+    } catch (err) {
+      next(err);
+    }
+  };
+}
+
+export async function createOpportunityRouter({
   passport,
   directory,
   tokenProvider,
-}: RouterProps): Router {
+}: RouterProps): Promise<Router> {
   const router = Router();
 
   router.post(
@@ -188,7 +281,67 @@ export function createOpportunityRouter({
 
   router.put(
     '/opportunities/:formId/data',
+    assertAuthenticated,
     updateDraft(directory, tokenProvider)
   );
+
+  const fileServiceUrl = await directory.getServiceUrl(
+    adspId`urn:ads:platform:file-service`
+  );
+
+  router.post(
+    '/opportunities/:formId/files',
+    assertAuthenticated,
+    proxy(fileServiceUrl.href, {
+      parseReqBody: false,
+      limit: '10mb',
+      proxyReqPathResolver: function () {
+        return '/file/v1/files';
+      },
+      proxyReqOptDecorator: async (proxyReq) => {
+        const accessToken = await tokenProvider.getAccessToken();
+        proxyReq.headers['Authorization'] = `Bearer ${accessToken}`;
+        return proxyReq;
+      },
+      userResDecorator: async (res, fileData, req) => {
+        if (res.statusCode === 200) {
+          const { formId } = req.params;
+          const { id, urn } = JSON.parse(fileData.toString());
+          const formServiceUrl = await directory.getServiceUrl(
+            adspId`urn:ads:platform:form-service`
+          );
+
+          const token = await tokenProvider.getAccessToken();
+          const { data } = await axios.put<OpportunityFormData>(
+            new URL(`/form/v1/forms/${formId}/data`, formServiceUrl).href,
+            {
+              ...req.user[FORM_DATA],
+              files: {
+                ...req.user[FORM_DATA].files,
+                [id]: urn,
+              },
+            },
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+
+          req.session['passport'].user.formData = data;
+        }
+        return fileData;
+      },
+    })
+  );
+
+  router.get(
+    '/opportunities/:formId/files/:fileId',
+    assertAuthenticated,
+    getFormFile(directory, tokenProvider)
+  );
+
+  router.delete(
+    '/opportunities/:formId/files/:fileId',
+    assertAuthenticated,
+    deleteFormFile(directory, tokenProvider)
+  );
+
   return router;
 }
