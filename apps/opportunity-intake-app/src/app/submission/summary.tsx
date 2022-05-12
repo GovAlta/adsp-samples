@@ -6,12 +6,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useDebouncedCallback } from 'use-debounce';
 import { ActionButton } from '../components/actionButton';
 import {
-  OpportunityForm,
   IntakeState,
   INTAKE_FEATURE_KEY,
   submitForm,
   updateFormData,
 } from '../intake.slice';
+import { OpportunityForm } from '../types';
 import { DocumentsSection } from './form/documentsSection';
 import { ExamplesSection } from './form/examplesSection';
 import { GeneralSection } from './form/generalSection';

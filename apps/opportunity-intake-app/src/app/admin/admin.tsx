@@ -9,23 +9,21 @@ export const Admin: FunctionComponent = () => {
   const user = useSelector((state: { user: UserState }) => state.user.user);
   return (
     <Switch>
-      {user && (
-        <>
-          <Route path="/admin/submissions">
-            <Submissions />
-          </Route>
-          <Redirect to="/admin/submissions" />
-        </>
+      {!user && (
+        <Route>
+          <section>
+            <GoACallout
+              type="information"
+              title="Sign in to access"
+              content="Sign in using your account to access the opportunity intake administration."
+            />
+          </section>
+        </Route>
       )}
-      <Route>
-        <section>
-          <GoACallout
-            type="information"
-            title="Sign in to access"
-            content="Sign in using your account to access the opportunity intake administration."
-          />
-        </section>
+      <Route path="/admin/submissions">
+        <Submissions />
       </Route>
+      <Redirect to="/admin/submissions" />
     </Switch>
   );
 };

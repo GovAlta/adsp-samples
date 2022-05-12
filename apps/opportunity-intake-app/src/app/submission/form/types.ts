@@ -1,4 +1,4 @@
-import { OpportunityData } from '../../intake.slice';
+import { OpportunityData } from '../../types';
 
 export interface SectionProps {
   showSummary?: boolean;

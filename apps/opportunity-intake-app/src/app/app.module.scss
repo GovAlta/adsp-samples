@@ -2,10 +2,6 @@ body {
   margin: 0;
 }
 
-main {
-  display: grid;
-  grid-template-columns: repeat(6, 15vw);
-}
 
 section {
   grid-column: 2 / span 4;
@@ -15,6 +11,24 @@ section {
 
 .app {
   margin: 0;
+}
+
+.app main {
+  display: grid;
+  grid-template-columns: repeat(6, 15vw);
+}
+
+.opportunityApp {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
+
+.opportunityApp main {
+  flex: 1;
+  overflow: auto;
 }
 
 .nextSteps {

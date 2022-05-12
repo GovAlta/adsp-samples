@@ -19,7 +19,11 @@ export const App: FunctionComponent<AppProps> = ({ userManager }) => {
   const location = useLocation();
 
   return (
-    <div className={styles.app}>
+    <div
+      className={`${styles.app} ${
+        location.pathname !== '/' ? styles.opportunityApp : ''
+      }`}
+    >
       <GoAHeader
         serviceLevel="alpha"
         serviceName="Platform Opportunities"

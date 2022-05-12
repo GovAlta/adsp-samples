@@ -1,41 +1,8 @@
 import { AnyAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { push } from 'connected-react-router';
+import { FileInfo, FormInfo, OpportunityForm } from './types';
 
 export const INTAKE_FEATURE_KEY = 'intake';
-
-export interface FormInfo {
-  id: string;
-  created: string;
-  submitted: string;
-  status: string;
-  applicant: {
-    addressAs: string;
-  };
-}
-
-interface FileInfo {
-  id: string;
-  urn: string;
-  filename: string;
-}
-
-export interface OpportunityData {
-  ministry: string;
-  program: string;
-  team: string;
-  description: string;
-  examples: {
-    users: string;
-    need: string;
-    use: string;
-  }[];
-}
-
-export interface OpportunityForm {
-  id: string;
-  data: OpportunityData;
-  files: Record<string, string>;
-}
 
 export interface IntakeState {
   loadingFormStatus: 'not loaded' | 'loading' | 'loaded' | 'error';
@@ -139,7 +106,7 @@ export const getFormFile = createAsyncThunk(
         method: 'GET',
       }
     );
-    const file = await response.json();
+    const file: FileInfo = await response.json();
     return file;
   }
 );
@@ -227,104 +194,104 @@ export const intakeSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(createForm.pending, (state: IntakeState) => {
+      .addCase(createForm.pending, (state) => {
         state.loadingFormStatus = 'loading';
       })
-      .addCase(createForm.fulfilled, (state: IntakeState, action) => {
+      .addCase(createForm.fulfilled, (state, action) => {
         state.form = action.payload;
         state.loadingFormStatus = 'loaded';
       })
-      .addCase(createForm.rejected, (state: IntakeState, action) => {
+      .addCase(createForm.rejected, (state, action) => {
         state.loadingFormStatus = 'error';
         state.error = action.error.message;
       })
-      .addCase(getForm.pending, (state: IntakeState) => {
+      .addCase(getForm.pending, (state) => {
         state.loadingFormStatus = 'loading';
       })
-      .addCase(getForm.fulfilled, (state: IntakeState, action) => {
+      .addCase(getForm.fulfilled, (state, action) => {
         state.loadingFormStatus = 'loaded';
         state.form = action.payload;
       })
-      .addCase(getForm.rejected, (state: IntakeState, action) => {
+      .addCase(getForm.rejected, (state, action) => {
         state.loadingFormStatus = 'error';
         state.error = action.error.message;
       })
-      .addCase(sendCode.pending, (state: IntakeState) => {
+      .addCase(sendCode.pending, (state) => {
         state.sendCodeStatus = 'sending';
         state.error = null;
       })
-      .addCase(sendCode.fulfilled, (state: IntakeState) => {
+      .addCase(sendCode.fulfilled, (state) => {
         state.sendCodeStatus = 'sent';
       })
-      .addCase(sendCode.rejected, (state: IntakeState, action) => {
+      .addCase(sendCode.rejected, (state, action) => {
         state.sendCodeStatus = 'error';
         state.error = action.error.message;
       })
-      .addCase(getFormData.pending, (state: IntakeState) => {
+      .addCase(getFormData.pending, (state) => {
         state.loadingDataStatus = 'loading';
       })
-      .addCase(getFormData.fulfilled, (state: IntakeState, action) => {
+      .addCase(getFormData.fulfilled, (state, action) => {
         state.formData = action.payload;
         state.loadingDataStatus = 'loaded';
       })
-      .addCase(getFormData.rejected, (state: IntakeState, action) => {
+      .addCase(getFormData.rejected, (state, action) => {
         state.loadingDataStatus = 'error';
         state.error = action.error.message;
       })
-      .addCase(getFormFile.pending, (state: IntakeState, action) => {
+      .addCase(getFormFile.pending, (state, action) => {
         state.loadingFileStatus[action.meta.arg.fileId] = 'loading';
       })
-      .addCase(getFormFile.fulfilled, (state: IntakeState, action) => {
+      .addCase(getFormFile.fulfilled, (state, action) => {
         state.files[action.meta.arg.fileId] = action.payload;
         state.loadingFileStatus[action.meta.arg.fileId] = 'loaded';
       })
-      .addCase(getFormFile.rejected, (state: IntakeState, action) => {
+      .addCase(getFormFile.rejected, (state, action) => {
         state.loadingFileStatus[action.meta.arg.fileId] = 'error';
         state.error = action.error.message;
       })
-      .addCase(uploadFormFile.pending, (state: IntakeState) => {
+      .addCase(uploadFormFile.pending, (state) => {
         state.uploadingFileStatus = 'uploading';
       })
-      .addCase(uploadFormFile.fulfilled, (state: IntakeState, action) => {
+      .addCase(uploadFormFile.fulfilled, (state, action) => {
         state.files[action.payload.id] = action.payload;
         state.uploadingFileStatus = 'uploaded';
         state.loadingFileStatus[action.payload.id] = 'loaded';
         state.formData.files[action.payload.id] = action.payload.urn;
       })
-      .addCase(uploadFormFile.rejected, (state: IntakeState, action) => {
+      .addCase(uploadFormFile.rejected, (state, action) => {
         state.uploadingFileStatus = 'error';
         state.error = action.error.message;
       })
-      .addCase(deleteFormFile.fulfilled, (state: IntakeState, action) => {
+      .addCase(deleteFormFile.fulfilled, (state, action) => {
         delete state.files[action.meta.arg.fileId];
         delete state.loadingFileStatus[action.meta.arg.fileId];
         delete state.formData.files[action.meta.arg.fileId];
       })
-      .addCase(deleteFormFile.rejected, (state: IntakeState, action) => {
+      .addCase(deleteFormFile.rejected, (state, action) => {
         state.uploadingFileStatus = 'error';
         state.error = action.error.message;
       })
-      .addCase(updateFormData.pending, (state: IntakeState) => {
+      .addCase(updateFormData.pending, (state) => {
         state.savingStatus = 'saving';
       })
-      .addCase(updateFormData.fulfilled, (state: IntakeState, action) => {
+      .addCase(updateFormData.fulfilled, (state, action) => {
         state.savingStatus = 'saved';
         state.formData = action.payload;
       })
-      .addCase(updateFormData.rejected, (state: IntakeState, action) => {
+      .addCase(updateFormData.rejected, (state, action) => {
         state.savingStatus = 'error';
         state.error = action.error.message;
       })
-      .addCase(submitForm.pending, (state: IntakeState) => {
+      .addCase(submitForm.pending, (state) => {
         state.savingStatus = 'saving';
       })
-      .addCase(submitForm.fulfilled, (state: IntakeState, action) => {
+      .addCase(submitForm.fulfilled, (state, action) => {
         state.savingStatus = 'saved';
         if (action.payload) {
           state.form = action.payload;
         }
       })
-      .addCase(submitForm.rejected, (state: IntakeState, action) => {
+      .addCase(submitForm.rejected, (state, action) => {
         state.savingStatus = 'error';
         state.error = action.error.message;
       });

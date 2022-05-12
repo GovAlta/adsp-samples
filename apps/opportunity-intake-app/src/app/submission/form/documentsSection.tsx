@@ -28,14 +28,17 @@ const FileItem: FunctionComponent<FileItemProps> = ({
   fileId,
   showReadOnly,
 }) => {
-  const { filename = '' } = useSelector(
-    (state: { [INTAKE_FEATURE_KEY]: IntakeState }) =>
-      state[INTAKE_FEATURE_KEY].files?.[fileId] || { filename: null }
+  const { filename = '', isLoading } = useSelector(
+    (state: { [INTAKE_FEATURE_KEY]: IntakeState }) => ({
+      filename: state[INTAKE_FEATURE_KEY].files?.[fileId]?.filename,
+      isLoading:
+        state[INTAKE_FEATURE_KEY].loadingFileStatus[fileId] === 'loading',
+    })
   );
   const dispatch = useDispatch();
   return (
     <li>
-      {(
+      {!isLoading ? (
         <span>
           {filename}
           {!showReadOnly && (
@@ -46,7 +49,7 @@ const FileItem: FunctionComponent<FileItemProps> = ({
             />
           )}
         </span>
-      ) || (
+      ) : (
         <GoAElementLoader
           visible={true}
           baseColour="#fff"
