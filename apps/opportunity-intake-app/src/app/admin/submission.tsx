@@ -1,7 +1,9 @@
 import { GoABadge, GoAIconButton } from '@abgov/react-components/experimental';
 import { DateTime } from 'luxon';
 import { FunctionComponent, useState } from 'react';
-import { FormInfo } from '../intake.slice';
+import { useDispatch } from 'react-redux';
+import { getSubmissionDetails } from '../assess.slice';
+import { FormInfo } from '../types';
 import { Details } from './details';
 
 interface SubmissionItemProps {
@@ -12,6 +14,7 @@ export const Submission: FunctionComponent<SubmissionItemProps> = ({
 }) => {
   const { id, created, submitted, applicant, status } = form;
   const [showDetails, setShowDetails] = useState(false);
+  const dispatch = useDispatch();
 
   return (
     <>
@@ -29,7 +32,10 @@ export const Submission: FunctionComponent<SubmissionItemProps> = ({
           {status === 'submitted' && (
             <GoAIconButton
               type={showDetails ? 'eye-off' : 'eye'}
-              onClick={() => setShowDetails(!showDetails)}
+              onClick={() => {
+                setShowDetails(!showDetails);
+                dispatch(getSubmissionDetails({ formId: form.id }));
+              }}
             />
           )}
         </td>

@@ -8,6 +8,7 @@ export interface ConfigState {
   realm: string;
   accessServiceUrl: string;
   directoryServiceUrl: string;
+  fileServiceUrl: string;
   formServiceUrl: string;
   loadingStatus: 'not loaded' | 'loading' | 'loaded' | 'error';
   error: string;
@@ -18,6 +19,7 @@ export const initialStartState: ConfigState = {
   realm: null,
   accessServiceUrl: null,
   directoryServiceUrl: null,
+  fileServiceUrl: null,
   formServiceUrl: null,
   loadingStatus: 'not loaded',
   error: null,
@@ -51,6 +53,9 @@ export const getConfiguration = createAsyncThunk(
 
     return {
       ...config,
+      fileServiceUrl: entries.find(
+        (entry) => entry.urn === 'urn:ads:platform:file-service'
+      )?.url,
       formServiceUrl: entries.find(
         (entry) => entry.urn === 'urn:ads:platform:form-service'
       )?.url,
@@ -60,7 +65,7 @@ export const getConfiguration = createAsyncThunk(
 
 export const configReducer = createReducer(initialStartState, (builder) => {
   builder
-    .addCase(getConfiguration.pending, (state: ConfigState) => {
+    .addCase(getConfiguration.pending, (state) => {
       state.loadingStatus = 'loading';
     })
     .addCase(getConfiguration.fulfilled, (state, action) => {
@@ -69,9 +74,10 @@ export const configReducer = createReducer(initialStartState, (builder) => {
       state.realm = action.payload.realm;
       state.accessServiceUrl = action.payload.accessServiceUrl;
       state.directoryServiceUrl = action.payload.directoryServiceUrl;
+      state.fileServiceUrl = action.payload.fileServiceUrl;
       state.formServiceUrl = action.payload.formServiceUrl;
     })
-    .addCase(getConfiguration.rejected, (state: ConfigState, action) => {
+    .addCase(getConfiguration.rejected, (state, action) => {
       state.loadingStatus = 'error';
       state.error = action.error.message;
     });
