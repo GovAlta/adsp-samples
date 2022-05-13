@@ -27,7 +27,7 @@ parameters:
   - name: COMMIT_SHA
     description: SHA of the commit that triggered the deployment.
     displayName: Commit SHA
-    value: ''
+    value: ""
     required: true
   - description: Password for the Redis connection user.
     displayName: Redis Connection Password
@@ -198,6 +198,7 @@ objects:
     data:
       TENANT_REALM: test
       ACCESS_SERVICE_URL: https://access.alpha.alberta.ca
+      SERVICE_URL:
   - apiVersion: v1
     kind: Secret
     metadata:

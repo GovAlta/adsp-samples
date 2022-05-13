@@ -9,6 +9,7 @@ export const environment = {
   DIRECTORY_SERVICE_URL: null,
   CLIENT_ID: 'urn:ads:autotest:opportunity-intake-service',
   CLIENT_SECRET: null,
+  SERVICE_URL: 'https://opportunity.adsp-dev.gov.ab.ca',
   SESSION_SECRET: 'some random local whatever',
   REDIS_HOST: 'opportunity-intake-redis',
   REDIS_PORT: 6379,

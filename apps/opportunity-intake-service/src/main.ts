@@ -2,7 +2,12 @@
  * This is not a production server yet!
  * This is only a minimal backend to get started.
  */
-import { AdspId, GoAError, initializeService } from '@govalta/adsp-service-sdk';
+import {
+  adspId,
+  AdspId,
+  GoAError,
+  initializeService,
+} from '@govalta/adsp-service-sdk';
 import axios from 'axios';
 import * as compression from 'compression';
 import * as expressRedis from 'connect-redis';
@@ -96,6 +101,24 @@ async function initializeApp(): Promise<express.Application> {
               'urn:ads:platform:form-service:intake-application',
             ],
             updateRoles: ['urn:ads:platform:form-service:intake-application'],
+          },
+        ],
+        serviceConfigurations: [
+          {
+            serviceId: adspId`urn:ads:platform:form-service`,
+            configuration: {
+              'opportunity-intake': {
+                id: 'opportunity-intake',
+                anonymousApply: true,
+                name: 'Opportunity intake',
+                description: 'Submissions of platform opportunities.',
+                applicantRoles: [],
+                formDraftUrlTemplate: `${environment.SERVICE_URL}/submission/{{ id }}`,
+                assessorRoles: [
+                  'urn:ads:autotest:opportunity-intake-service:opportunity-admin',
+                ],
+              },
+            },
           },
         ],
       },
