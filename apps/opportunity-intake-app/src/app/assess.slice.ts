@@ -165,7 +165,10 @@ export const assessReducer = createReducer(initialStartState, (builder) => {
     })
     .addCase(getSubmissions.fulfilled, (state, action) => {
       state.loadingStatus = 'loaded';
-      state.results = action.payload.results.map((result) => result.id);
+      state.results = [
+        ...(action.payload.page.after ? state.results : []),
+        ...action.payload.results.map((result) => result.id),
+      ];
       state.submissions = action.payload.results.reduce(
         (submissions, result) => ({ ...submissions, [result.id]: result }),
         state.submissions
