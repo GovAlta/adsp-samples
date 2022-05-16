@@ -27,10 +27,6 @@ export async function handleAcronymUpdate(
     extraHeaders: { Authorization: `Bearer ${token}` },
   });
 
-  socket.on('connect', () => {
-    console.log(socket.id);
-  });
-
   socket.on('configuration-service:configuration-updated', () => {
     onUpdate();
   });
