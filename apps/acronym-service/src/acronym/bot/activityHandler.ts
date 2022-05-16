@@ -18,7 +18,7 @@ import { Logger } from 'winston';
 import { AcronymConfiguration } from '../configuration';
 
 interface Submission {
-  prompt: 'context' | 'description' | 'none';
+  prompt: 'context' | 'description' | 'confirm' | 'none';
   acronym: string;
   represents: string;
   context?: string;
@@ -34,28 +34,25 @@ class AcronymBotActivityHandler extends ActivityHandler {
     const configuration =
       context.turnState.get<AcronymConfiguration>('acronymConfig');
 
-    let reply: Partial<Activity>;
+    let reply: Partial<Activity>[];
 
     const { definitions = null } = configuration[acronym] || {};
     if (definitions) {
-      reply = {
-        text: `${definitions
-          .map(
-            ({ context, represents, description }) =>
-              `**${represents} (${acronym})** - ${context}\n` +
-              `> ${description}`
-          )
-          .join('\n')}`,
+      reply = definitions.map(({ context, represents, description }) => ({
+        text:
+          `**${represents} (${acronym})** - ${context}\n` + `> ${description}`,
         textFormat: 'markdown',
-      };
+      }));
     } else {
-      reply = {
-        text: `Sorry, I don't know **${acronym}**. If you figure it out, let me know by sending a message like: *acronym* = *expansion*`,
-        textFormat: 'markdown',
-      };
+      reply = [
+        {
+          text: `Sorry, I don't know **${acronym}**. If you figure it out, let me know by sending a message like: *acronym* = *expansion*`,
+          textFormat: 'markdown',
+        },
+      ];
     }
 
-    await context.sendActivity(reply);
+    await context.sendActivities(reply);
     this.logger.debug(`Sent bot reply.`);
   };
 
@@ -74,12 +71,12 @@ class AcronymBotActivityHandler extends ActivityHandler {
         submission.prompt = 'description';
         reply = {
           text:
-            `**${submission.represents} (${submission.acronym})**\n` +
-            `*What is the context of this acronym?*\n` +
+            `**${submission.represents} (${submission.acronym})**\n\n` +
+            `*What is the context of this acronym?* ` +
             `The same acronym may represent multiple things. ` +
             `Please provide the context where this representation applies. ` +
             `For example, if it applies to Service Alberta organization, ` +
-            `reply: 'Service Alberta organization'`,
+            `reply: Service Alberta organization`,
           textFormat: 'markdown',
         };
         break;
@@ -89,22 +86,44 @@ class AcronymBotActivityHandler extends ActivityHandler {
         submission.prompt = 'none';
         reply = {
           text:
-            `**${submission.represents} (${submission.acronym})** - ${submission.context}\n` +
-            `*What does it mean?*\n` +
+            `**${submission.represents} (${submission.acronym})** - ${submission.context}\n\n` +
+            `*What does it mean?* ` +
             `Please provide a brief description of what is represented.`,
           textFormat: 'markdown',
         };
         break;
       }
-      case 'none': {
+      case 'confirm': {
         submission.description = text;
+        submission.prompt = 'none';
         reply = {
           text:
-            `Thank you for submitting a new definition: \n` +
+            `Does this look right? (yes / cancel) \n\n` +
             `**${submission.represents} (${submission.acronym})** - ${submission.context}\n` +
             `> ${submission.description}`,
           textFormat: 'markdown',
         };
+        await this.updateAcronym(context, submission);
+        break;
+      }
+      case 'none': {
+        if (text.toLowerCase() === 'yes') {
+          reply = {
+            text:
+              `Thank you for submitting a new definition: \n\n` +
+              `**${submission.represents} (${submission.acronym})** - ${submission.context}\n` +
+              `> ${submission.description}`,
+            textFormat: 'markdown',
+          };
+          await this.updateAcronym(context, submission);
+        } else {
+          await this.submissionAccessor.delete(context);
+          reply = {
+            text: `Cancelled submission of ${submission.acronym} = ${submission.represents}`,
+            textFormat: 'markdown',
+          };
+        }
+        break;
       }
     }
     await context.sendActivity(reply);
@@ -139,6 +158,7 @@ class AcronymBotActivityHandler extends ActivityHandler {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
+    await this.submissionAccessor.delete(turnContext);
   };
 
   public handleMessage: BotHandler = async (context, next) => {
