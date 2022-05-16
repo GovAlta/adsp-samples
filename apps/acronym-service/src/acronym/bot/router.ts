@@ -43,7 +43,7 @@ export function createBotRouter({
 
       await adapter.process(req, res, async (context) => {
         context.turnState.set('acronymConfig', configuration);
-        handler.run(context);
+        await handler.run(context);
       });
     } catch (err) {
       logger.debug(`Error encountered in processing message. ${err}`);

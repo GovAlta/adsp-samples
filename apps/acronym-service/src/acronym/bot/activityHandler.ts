@@ -50,7 +50,7 @@ class AcronymBotActivityHandler extends ActivityHandler {
       };
     } else {
       reply = {
-        text: `Sorry, I don't know **${acronym}**. If you figure it out, let me know...`,
+        text: `Sorry, I don't know **${acronym}**. If you figure it out, let me know by sending a message like: *acronym* = *expansion*`,
         textFormat: 'markdown',
       };
     }
@@ -158,7 +158,7 @@ class AcronymBotActivityHandler extends ActivityHandler {
     if (submission && context.activity.text.toLowerCase() === 'cancel') {
       this.logger.debug(`Cancelling submission conversation...`);
       await this.submissionAccessor.delete(context);
-      context.sendActivity(
+      await context.sendActivity(
         `Cancelled submission of ${submission.acronym} = ${submission.represents}`
       );
     } else if (submission) {
@@ -172,6 +172,13 @@ class AcronymBotActivityHandler extends ActivityHandler {
       this.logger.debug(
         `Starting submission conversation for ${acronymEquals} = ${represents}...`
       );
+      await context.sendActivity({
+        text:
+          'Thank you for submitting a new acronym. ' +
+          'Reply **cancel** at any prompt to cancel the submission. ' +
+          'Note that we may reach out to you if there are questions about the submission.',
+        textFormat: 'markdown',
+      });
       submission = {
         prompt: 'context',
         acronym: acronymEquals,
@@ -207,7 +214,7 @@ class AcronymBotActivityHandler extends ActivityHandler {
 
   override async run(context: TurnContext): Promise<void> {
     await super.run(context);
-    this.conversationState.saveChanges(context);
+    await this.conversationState.saveChanges(context);
   }
 }
 
