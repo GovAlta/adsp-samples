@@ -1,10 +1,17 @@
 import { Activity, ActivityHandler, BotHandler } from 'botbuilder';
+import { Logger } from 'winston';
 import { AcronymConfiguration } from '../configuration';
 
 class AcronymBotActivityHandler extends ActivityHandler {
   public handleMessage: BotHandler = async (context, next) => {
-    const acronym = /^\s*([a-zA-Z0-9]{1,20})/.exec(context.activity.text)[0];
+    this.logger.debug(`Received message: ${context.activity.text}`);
+
+    const acronym = /^\s*([a-zA-Z0-9]{1,20})\s*$/.exec(
+      context.activity.text
+    )[0];
+
     if (acronym) {
+      this.logger.debug(`Processing acronym ask for ${acronym}...`);
       const configuration =
         context.turnState.get<AcronymConfiguration>('acronymConfig');
 
@@ -29,17 +36,22 @@ class AcronymBotActivityHandler extends ActivityHandler {
       }
 
       await context.sendActivity(reply);
+      this.logger.debug(`Sent bot reply.`);
     }
     await next();
   };
 
-  constructor() {
+  constructor(private logger: Logger) {
     super();
 
     this.onMessage(this.handleMessage);
   }
 }
 
-export function createActivityHandler() {
-  return new AcronymBotActivityHandler();
+interface HandlerProps {
+  logger: Logger;
+}
+
+export function createActivityHandler({ logger }: HandlerProps) {
+  return new AcronymBotActivityHandler(logger);
 }

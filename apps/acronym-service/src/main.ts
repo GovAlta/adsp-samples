@@ -17,6 +17,7 @@ import {
 } from './acronym';
 import { environment } from './environments/environment';
 import { handleAcronymUpdate } from './io';
+import { createLogger } from './winston';
 
 function connectRedis() {
   const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } = environment;
@@ -42,6 +43,8 @@ async function initializeApp(): Promise<express.Application> {
   if (environment.TRUSTED_PROXY) {
     app.set('trust proxy', environment.TRUSTED_PROXY);
   }
+
+  const logger = createLogger('acronym-service', environment.LOG_LEVEL);
 
   const serviceId = AdspId.parse(environment.CLIENT_ID);
   const {
@@ -84,7 +87,7 @@ async function initializeApp(): Promise<express.Application> {
         },
       ],
     },
-    { logLevel: environment.LOG_LEVEL }
+    logger
   );
 
   passport.use('tenant', tenantStrategy);
@@ -94,7 +97,7 @@ async function initializeApp(): Promise<express.Application> {
     clearCached(serviceId)
   );
 
-  applyBotMiddleware(app, environment);
+  applyBotMiddleware(app, { ...environment, logger });
 
   app.use(
     '/acronym/v1',

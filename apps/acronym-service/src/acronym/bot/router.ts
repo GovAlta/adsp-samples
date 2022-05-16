@@ -5,6 +5,7 @@ import {
   createBotFrameworkAuthenticationFromConfiguration,
 } from 'botbuilder';
 import { RequestHandler, Router } from 'express';
+import { Logger } from 'winston';
 import { AcronymConfiguration } from '../configuration';
 
 interface RouterProps {
@@ -13,6 +14,7 @@ interface RouterProps {
   BOT_APP_TYPE: string;
   BOT_TENANT_ID: string;
   handler: ActivityHandler;
+  logger: Logger;
 }
 
 export function createBotRouter({
@@ -21,6 +23,7 @@ export function createBotRouter({
   BOT_APP_TYPE,
   BOT_TENANT_ID,
   handler,
+  logger,
 }: RouterProps): Router {
   const credentialsFactory = new ConfigurationServiceClientCredentialFactory({
     MicrosoftAppId: BOT_CLIENT_ID,
@@ -43,6 +46,7 @@ export function createBotRouter({
         handler.run(context);
       });
     } catch (err) {
+      logger.debug(`Error encountered in processing message. ${err}`);
       next(err);
     }
   };
