@@ -1,0 +1,64 @@
+{
+  "root": "apps/acronym-service",
+  "sourceRoot": "apps/acronym-service/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/acronym-service",
+        "main": "apps/acronym-service/src/main.ts",
+        "tsConfig": "apps/acronym-service/tsconfig.app.json"        
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/node:execute",
+      "options": {
+        "buildTarget": "acronym-service:build"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/acronym-service/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/acronym-service"],
+      "options": {
+        "jestConfig": "apps/acronym-service/jest.config.js",
+        "passWithNoTests": true
+      }
+    },
+    "apply-envs": {
+      "executor": "@abgov/nx-oc:apply",
+      "options": {
+        "ocProject": [
+          {
+            "project": "ui-components-dev",
+            "tag": "dev"
+          },
+          {
+            "project": "ui-components-uat",
+            "tag": "test"
+          },
+          {
+            "project": "ui-components-prod",
+            "tag": "prod"
+          }
+        ]
+      }
+    }
+  },
+  "tags": []
+}
