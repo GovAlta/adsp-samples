@@ -36,7 +36,7 @@ class AcronymBotActivityHandler extends ActivityHandler {
 
     let reply: Partial<Activity>;
 
-    const { definitions = null } = configuration[acronym];
+    const { definitions = null } = configuration[acronym] || {};
     if (definitions) {
       reply = {
         text: `${definitions
@@ -116,7 +116,7 @@ class AcronymBotActivityHandler extends ActivityHandler {
   ) => {
     const configuration =
       turnContext.turnState.get<AcronymConfiguration>('acronymConfig');
-    const { definitions = [] } = configuration[acronym];
+    const { definitions = [] } = configuration[acronym] || {};
 
     const configurationServiceUrl = await this.directory.getServiceUrl(
       adspId`urn:ads:platform:configuration-service`
@@ -147,13 +147,14 @@ class AcronymBotActivityHandler extends ActivityHandler {
     let submission = await this.submissionAccessor.get(context, null);
 
     // Look for single token representing the acronym being requested.
-    const [askMatch, acronym] = /^\s*([a-zA-Z0-9]{1,20})\s*$/g.exec(
-      context.activity.text
-    );
+    const [askMatch, acronym] =
+      /^\s*([a-zA-Z0-9]{1,20})\s*$/g.exec(context.activity.text) || [];
 
     // Look for text in format of {acronym} = {representation}
     const [submissionMatch, acronymEquals, represents] =
-      /^\s*([a-zA-Z0-9]{1,20})\s?=\s?(.{1,150})$/g.exec(context.activity.text);
+      /^\s*([a-zA-Z0-9]{1,20})\s?=\s?(.{1,150})$/g.exec(
+        context.activity.text
+      ) || [];
 
     if (submission && context.activity.text.toLowerCase() === 'cancel') {
       this.logger.debug(`Cancelling submission conversation...`);
@@ -179,7 +180,7 @@ class AcronymBotActivityHandler extends ActivityHandler {
           'Note that we may reach out to you if there are questions about the submission.',
         textFormat: 'markdown',
       });
-      
+
       submission = {
         prompt: 'context',
         acronym: acronymEquals,
