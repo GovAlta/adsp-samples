@@ -179,6 +179,7 @@ class AcronymBotActivityHandler extends ActivityHandler {
           'Note that we may reach out to you if there are questions about the submission.',
         textFormat: 'markdown',
       });
+      
       submission = {
         prompt: 'context',
         acronym: acronymEquals,
@@ -213,8 +214,17 @@ class AcronymBotActivityHandler extends ActivityHandler {
   }
 
   override async run(context: TurnContext): Promise<void> {
-    await super.run(context);
-    await this.conversationState.saveChanges(context);
+    try {
+      this.logger.debug('Running activity handler for bot...');
+
+      await super.run(context);
+      await this.conversationState.saveChanges(context);
+    } catch (err) {
+      this.logger.error(
+        `Error encountered in running activity handler. ${err}`
+      );
+      throw err;
+    }
   }
 }
 

@@ -112,7 +112,10 @@ async function initializeApp(): Promise<express.Application> {
 
   app.use('/bot/v1', configurationHandler);
 
-  const storage = createConversationStateStorage({ client: redisClient });
+  const storage = createConversationStateStorage({
+    client: redisClient,
+    logger,
+  });
   applyBotMiddleware(app, {
     ...environment,
     logger,

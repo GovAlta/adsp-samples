@@ -38,6 +38,7 @@ export function createBotRouter({
 
   const processMessage: RequestHandler = async (req, res, next) => {
     try {
+      logger.debug('Received request on bot messages endpoint...');
       const [configuration] =
         await req.getConfiguration<AcronymConfiguration>();
 
@@ -46,7 +47,7 @@ export function createBotRouter({
         await handler.run(context);
       });
     } catch (err) {
-      logger.debug(`Error encountered in processing message. ${err}`);
+      logger.error(`Error encountered in processing message. ${err}`);
       next(err);
     }
   };
