@@ -1,0 +1,312 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: acronym-service
+labels:
+  app: acronym-service
+parameters:
+  - name: INFRA_PROJECT
+    description: Project used for build infrastructure.
+    displayName: Infrastructure Project
+    value: ui-components-build
+    required: true
+  - name: PROJECT
+    description: Project to set up.
+    displayName: Project
+    required: true
+  - name: APP_NAME
+    description: Name of the application.
+    displayName: Application Name
+    value: acronym-service
+    required: true
+  - name: DEPLOY_TAG
+    description: Tag of the ImageStream to deploy.
+    displayName: Deploy Tag
+    value: latest
+    required: true
+  - name: COMMIT_SHA
+    description: SHA of the commit that triggered the deployment.
+    displayName: Commit SHA
+    value: ""
+    required: true
+  - description: Password for the Redis connection user.
+    displayName: Redis Connection Password
+    from: "[a-zA-Z0-9]{24}"
+    generate: expression
+    name: REDIS_PASSWORD
+objects:
+  # Redis Objects
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      labels:
+        app: acronym-service
+        component: database
+        apply-init: "true"
+      name: acronym-redis
+    stringData:
+      database-password: ${REDIS_PASSWORD}
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        template.openshift.io/expose-uri: redis://{.spec.clusterIP}:{.spec.ports[?(.name=="redis")].port}
+      labels:
+        app: acronym-service
+        component: database
+      name: acronym-redis
+    spec:
+      ports:
+        - name: redis
+          nodePort: 0
+          port: 6379
+          protocol: TCP
+          targetPort: 6379
+      selector:
+        app: acronym-service
+        component: database
+      sessionAffinity: None
+      type: ClusterIP
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      annotations:
+        template.alpha.openshift.io/wait-for-ready: "true"
+      labels:
+        app: acronym-service
+        component: database
+      name: acronym-redis
+    spec:
+      replicas: 1
+      selector:
+        app: acronym-service
+        component: database
+      strategy:
+        type: Recreate
+        resources:
+          limits:
+            cpu: 200m
+            memory: 200Mi
+          requests:
+            cpu: 20m
+            memory: 50Mi
+      template:
+        metadata:
+          labels:
+            app: acronym-service
+            component: database
+        spec:
+          containers:
+            - capabilities: {}
+              env:
+                - name: REDIS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: database-password
+                      name: acronym-redis
+              image: " "
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                initialDelaySeconds: 60
+                tcpSocket:
+                  port: 6379
+                timeoutSeconds: 30
+              name: redis
+              ports:
+                - containerPort: 6379
+                  protocol: TCP
+              readinessProbe:
+                exec:
+                  command:
+                    - /bin/sh
+                    - -i
+                    - -c
+                    - test "$(redis-cli -h 127.0.0.1 -a $REDIS_PASSWORD ping)" == "PONG"
+                initialDelaySeconds: 60
+                timeoutSeconds: 1
+              resources:
+                requests:
+                  cpu: 20m
+                  memory: 100Mi
+                limits:
+                  cpu: 200m
+                  memory: 512Mi
+              securityContext:
+                capabilities: {}
+                privileged: false
+              terminationMessagePath: /dev/termination-log
+              volumeMounts:
+                - mountPath: /var/lib/redis/data
+                  name: acronym-redis-data
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          volumes:
+            - emptyDir:
+                medium: ""
+              name: acronym-redis-data
+      triggers:
+        - imageChangeParams:
+            automatic: true
+            containerNames:
+              - redis
+            from:
+              kind: ImageStreamTag
+              name: redis:5-el8
+              namespace: openshift
+            lastTriggeredImage: ""
+          type: ImageChange
+        - type: ConfigChange
+
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+      labels:
+        apply-init: "true"
+      name: ${APP_NAME}
+      namespace: ${INFRA_PROJECT}
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      labels:
+        apply-init: "true"
+      name: ${APP_NAME}
+      namespace: ${INFRA_PROJECT}
+    spec:
+      output:
+        to:
+          kind: ImageStreamTag
+          name: "${APP_NAME}:latest"
+      runPolicy: Serial
+      source:
+        binary: {}
+        type: Binary
+      strategy:
+        dockerStrategy:
+          buildArgs:
+            - name: PROJECT
+              value: acronym-service
+          dockerfilePath: .openshift/acronym-service/Dockerfile
+        type: Docker
+      triggers: []
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      labels:
+        apply-init: "true"
+      name: ${APP_NAME}
+      namespace: ${PROJECT}
+    data:
+      TENANT_REALM: platform
+      ACCESS_SERVICE_URL: https://access.alberta.ca
+      DIRECTORY_SERVICE_URL: https://tenant-service.adsp.alberta.ca
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      labels:
+        apply-init: "true"
+      name: ${APP_NAME}
+      namespace: ${PROJECT}
+    stringData:
+      CLIENT_SECRET: ""
+      BOT_TENANT_ID:
+      BOT_CLIENT_ID:
+      BOT_CLIENT_SECRET:
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      name: ${APP_NAME}
+      namespace: ${PROJECT}
+    spec:
+      replicas: 2
+      selector:
+        name: ${APP_NAME}
+      strategy:
+        type: Rolling
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+          requests:
+            cpu: 20m
+            memory: 50Mi
+      template:
+        metadata:
+          labels:
+            name: ${APP_NAME}
+          annotations:
+            commit: ${COMMIT_SHA}
+        spec:
+          containers:
+            - name: ${APP_NAME}
+              envFrom:
+                - configMapRef:
+                    name: ${APP_NAME}
+                - secretRef:
+                    name: ${APP_NAME}
+              env:
+                - name: port
+                  value: "3333"
+                - name: LOG_LEVEL
+                  value: info
+                - name: REDIS_HOST
+                  value: acronym-redis
+                - name: REDIS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: database-password
+                      name: acronym-redis
+              imagePullPolicy: IfNotPresent
+              ports:
+                - containerPort: 3333
+                  name: http
+                  protocol: TCP
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 200Mi
+                requests:
+                  cpu: 20m
+                  memory: 50Mi
+              terminationMessagePath: /dev/termination-log
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          schedulerName: default-scheduler
+      triggers:
+        - imageChangeParams:
+            containerNames:
+              - ${APP_NAME}
+            from:
+              kind: ImageStreamTag
+              name: "${APP_NAME}:${DEPLOY_TAG}"
+              namespace: ${INFRA_PROJECT}
+          type: ImageChange
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: ${APP_NAME}
+      namespace: ${PROJECT}
+    spec:
+      ports:
+        - name: http
+          port: 3333
+          protocol: TCP
+          targetPort: 3333
+      selector:
+        name: ${APP_NAME}
+      sessionAffinity: None
+      type: ClusterIP
+  - apiVersion: v1
+    kind: Route
+    metadata:
+      name: ${APP_NAME}
+      namespace: ${PROJECT}
+    spec:
+      port:
+        targetPort: http
+      tls:
+        termination: edge
+      to:
+        kind: Service
+        name: ${APP_NAME}
+        weight: 100
+      wildcardPolicy: None
