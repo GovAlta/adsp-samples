@@ -7,11 +7,10 @@ describe('activityHandler', () => {
   });
 
   it('can parse ask with no match', () => {
-    const [askMatch, acronym] =
+    const [askMatch] =
       /^\s*([a-zA-Z0-9]{1,20})\s*$/g.exec(' YMM-V  ') || [];
 
-    expect(askMatch).toBeTruthy();
-    expect(acronym).toBe('YMMV');
+    expect(askMatch).toBeFalsy();
   });
 
   it('can parse submission', () => {
@@ -26,7 +25,7 @@ describe('activityHandler', () => {
   });
 
   it('can parse submission with no match', () => {
-    const [submissionMatch, acronym, represents] =
+    const [submissionMatch] =
       /^\s*([a-zA-Z0-9]{1,20})\s?=\s?(.{1,150})$/g.exec('YMMV') || [];
 
     expect(submissionMatch).toBeFalsy();
