@@ -1,3 +1,9 @@
+import {
+  AdspId,
+  ServiceDirectory,
+  TokenProvider,
+} from '@govalta/adsp-service-sdk';
+import { Storage } from 'botbuilder';
 import { Application } from 'express';
 import { Logger } from 'winston';
 import { createActivityHandler } from './activityHandler';
@@ -11,14 +17,18 @@ interface MiddlewareProps {
   BOT_APP_TYPE: string;
   BOT_TENANT_ID: string;
   logger: Logger;
+  storage: Storage;
+  serviceId: AdspId;
+  directory: ServiceDirectory;
+  tokenProvider: TokenProvider;
 }
 
 export function applyBotMiddleware(
   app: Application,
-  { logger, ...props }: MiddlewareProps
+  props: MiddlewareProps
 ): Application {
-  const handler = createActivityHandler({ logger });
-  const router = createBotRouter({ ...props, logger, handler });
+  const handler = createActivityHandler(props);
+  const router = createBotRouter({ ...props, handler });
   app.use('/bot/v1', router);
   return app;
 }

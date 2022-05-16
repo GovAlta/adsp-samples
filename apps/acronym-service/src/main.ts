@@ -17,6 +17,7 @@ import {
 } from './acronym';
 import { environment } from './environments/environment';
 import { handleAcronymUpdate } from './io';
+import { createConversationStateStorage } from './redis';
 import { createLogger } from './winston';
 
 function connectRedis() {
@@ -97,8 +98,6 @@ async function initializeApp(): Promise<express.Application> {
     clearCached(serviceId)
   );
 
-  applyBotMiddleware(app, { ...environment, logger });
-
   app.use(
     '/acronym/v1',
     passport.authenticate(['tenant', 'anonymous'], { session: false }),
@@ -109,6 +108,18 @@ async function initializeApp(): Promise<express.Application> {
     serviceId,
     directory,
     tokenProvider,
+  });
+
+  app.use('/bot/v1', configurationHandler);
+
+  const storage = createConversationStateStorage({ client: redisClient });
+  applyBotMiddleware(app, {
+    ...environment,
+    logger,
+    storage,
+    serviceId,
+    tokenProvider,
+    directory,
   });
 
   let swagger = null;
