@@ -114,9 +114,7 @@ async function initializeApp(): Promise<express.Application> {
                 description: 'Submissions of platform opportunities.',
                 applicantRoles: [],
                 formDraftUrlTemplate: `${environment.SERVICE_URL}/submission/{{ id }}`,
-                assessorRoles: [
-                  'urn:ads:autotest:opportunity-intake-service:opportunity-admin',
-                ],
+                assessorRoles: [`${serviceId}:opportunity-admin`],
               },
             },
           },

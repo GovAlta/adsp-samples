@@ -1,8 +1,4 @@
-/**
- * This is not a production server yet!
- * This is only a minimal backend to get started.
- */
-import { adspId, GoAError, initializeService } from '@govalta/adsp-service-sdk';
+import { AdspId, GoAError, initializeService } from '@govalta/adsp-service-sdk';
 import * as compression from 'compression';
 import * as cors from 'cors';
 import * as express from 'express';
@@ -28,7 +24,7 @@ async function initializeApp(): Promise<express.Application> {
     app.set('trust proxy', environment.TRUSTED_PROXY);
   }
 
-  const serviceId = adspId`urn:ads:autotest:chat-service`;
+  const serviceId = AdspId.parse(environment.CLIENT_ID);
   const {
     configurationHandler,
     directory,

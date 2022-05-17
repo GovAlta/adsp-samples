@@ -7,6 +7,7 @@ export const environment = {
   TENANT_REALM: null,
   ACCESS_SERVICE_URL: null,
   DIRECTORY_SERVICE_URL: null,
+  CLIENT_ID: 'urn:ads:autotest:chat-service',
   CLIENT_SECRET: null,
   TRUSTED_PROXY: 'uniquelocal',
   LOG_LEVEL: 'debug',

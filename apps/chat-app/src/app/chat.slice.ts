@@ -135,7 +135,7 @@ export const connectStream = createAsyncThunk(
 
     // Create the connection if no previous connection or it is disconnected.
     if (!socket || socket.disconnected) {
-      socket = io(`${pushServiceUrl}/autotest`, {
+      socket = io(`${pushServiceUrl}`, {
         query: {
           stream: 'chat-messages',
         },
