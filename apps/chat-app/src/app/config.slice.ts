@@ -6,6 +6,7 @@ export const CONFIG_FEATURE_KEY = 'config';
 export interface ConfigState {
   clientId: string;
   realm: string;
+  namespace: string;
   accessServiceUrl: string;
   directoryServiceUrl: string;
   fileServiceUrl: string;
@@ -17,6 +18,7 @@ export interface ConfigState {
 export const initialStartState: ConfigState = {
   clientId: null,
   realm: null,
+  namespace: null,
   accessServiceUrl: null,
   directoryServiceUrl: null,
   fileServiceUrl: null,
@@ -30,6 +32,7 @@ export const getConfiguration = createAsyncThunk(
   async () => {
     const config = {
       clientId: environment.access.client_id,
+      namespace: null,
       realm: environment.access.realm,
       accessServiceUrl: environment.access.url,
       directoryServiceUrl: environment.directory.url,
@@ -45,6 +48,9 @@ export const getConfiguration = createAsyncThunk(
     } catch (err) {
       // Fallback to environment if config.json retrieval fails.
     }
+
+    // This is the tenant name and we're relying on an ADSP ID convention in the client ID.
+    config.namespace = config.clientId.split(':')[2];
 
     const directoryResponse = await fetch(
       `${config.directoryServiceUrl}/api/directory/v2/namespaces/platform/entries`
@@ -71,6 +77,7 @@ export const configReducer = createReducer(initialStartState, (builder) => {
     .addCase(getConfiguration.fulfilled, (state, action) => {
       state.loadingStatus = 'loaded';
       state.clientId = action.payload.clientId;
+      state.namespace = action.payload.namespace;
       state.realm = action.payload.realm;
       state.accessServiceUrl = action.payload.accessServiceUrl;
       state.directoryServiceUrl = action.payload.directoryServiceUrl;

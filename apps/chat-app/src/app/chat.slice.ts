@@ -130,12 +130,13 @@ let socket: Socket;
 export const connectStream = createAsyncThunk(
   'chat/connectStream',
   async (token: string, { dispatch, getState }): Promise<void> => {
-    const pushServiceUrl = (getState() as { config: ConfigState }).config
-      .pushServiceUrl;
+    const { pushServiceUrl, namespace } = (
+      getState() as { config: ConfigState }
+    ).config;
 
     // Create the connection if no previous connection or it is disconnected.
     if (!socket || socket.disconnected) {
-      socket = io(`${pushServiceUrl}`, {
+      socket = io(`${pushServiceUrl}/${namespace}`, {
         query: {
           stream: 'chat-messages',
         },
