@@ -75,15 +75,14 @@ class AcronymBotActivityHandler extends ActivityHandler {
             `*What is the context of this acronym?* ` +
             `The same acronym may represent multiple things. ` +
             `Please provide the context where this representation applies. ` +
-            `For example, if it applies to Service Alberta organization, ` +
-            `reply: Service Alberta organization`,
+            `Some examples: General, Education, Service Alberta`,
           textFormat: 'markdown',
         };
         break;
       }
       case 'description': {
         submission.context = text;
-        submission.prompt = 'none';
+        submission.prompt = 'confirm';
         reply = {
           text:
             `**${submission.represents} (${submission.acronym})** - ${submission.context}\n\n` +
