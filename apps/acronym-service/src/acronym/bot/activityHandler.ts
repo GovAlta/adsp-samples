@@ -102,7 +102,6 @@ class AcronymBotActivityHandler extends ActivityHandler {
             `> ${submission.description}`,
           textFormat: 'markdown',
         };
-        await this.updateAcronym(context, submission);
         break;
       }
       case 'none': {
@@ -144,7 +143,10 @@ class AcronymBotActivityHandler extends ActivityHandler {
     const request = {
       operation: 'UPDATE',
       update: {
-        [acronym]: [...definitions, { represents, context, description }],
+        [acronym]: {
+          acronym,
+          definitions: [...definitions, { represents, context, description }],
+        },
       },
     };
     const { data: _data } = await axios.patch(
