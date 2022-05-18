@@ -8,6 +8,7 @@ import axios from 'axios';
 import {
   Activity,
   ActivityHandler,
+  ActivityTypes,
   BotHandler,
   ConversationState,
   StatePropertyAccessor,
@@ -138,7 +139,7 @@ class AcronymBotActivityHandler extends ActivityHandler {
     const configurationServiceUrl = await this.directory.getServiceUrl(
       adspId`urn:ads:platform:configuration-service`
     );
-    const token = await this.tokenProvider.getAccessToken();
+    let token = await this.tokenProvider.getAccessToken();
 
     const request = {
       operation: 'UPDATE',
@@ -149,7 +150,7 @@ class AcronymBotActivityHandler extends ActivityHandler {
         },
       },
     };
-    const { data: _data } = await axios.patch(
+    await axios.patch(
       new URL(
         `/configuration/v2/configuration/${this.serviceId.namespace}/${this.serviceId.service}`,
         configurationServiceUrl
@@ -160,10 +161,39 @@ class AcronymBotActivityHandler extends ActivityHandler {
       }
     );
     await this.submissionAccessor.delete(turnContext);
+
+    // Create a task to review the submission.
+    const taskServiceUrl = await this.directory.getServiceUrl(
+      adspId`urn:ads:platform:task-service`
+    );
+
+    token = await this.tokenProvider.getAccessToken();
+    await axios.patch(
+      new URL(
+        `/task/v1/queues/${this.serviceId.service}/submissions/tasks`,
+        taskServiceUrl
+      ).href,
+      {
+        name: `Review submission for ${acronym}`,
+        description: `Review submission for ${acronym} with definition: ${represents} (${context}): ${description}`,
+        context: {
+          acronym,
+          represents,
+          context,
+          description,
+        },
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
   };
 
   public handleMessage: BotHandler = async (context, next) => {
     this.logger.debug(`Received message: ${context.activity.text}`);
+
+    // Send a typing activity to indicate the bot is processing...
+    await context.sendActivity({ type: ActivityTypes.Typing });
 
     let submission = await this.submissionAccessor.get(context, null);
 

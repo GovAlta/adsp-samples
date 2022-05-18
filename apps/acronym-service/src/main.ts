@@ -1,4 +1,9 @@
-import { AdspId, GoAError, initializeService } from '@govalta/adsp-service-sdk';
+import {
+  adspId,
+  AdspId,
+  GoAError,
+  initializeService,
+} from '@govalta/adsp-service-sdk';
 import axios from 'axios';
 import * as compression from 'compression';
 import * as cors from 'cors';
@@ -85,6 +90,22 @@ async function initializeApp(): Promise<express.Application> {
               },
             },
           ],
+        },
+      ],
+      serviceConfigurations: [
+        {
+          serviceId: adspId`urn:ads:platform:task-service`,
+          configuration: {
+            queues: {
+              'acronym-service:submissions': {
+                namespace: 'acronym-service',
+                name: 'submissions',
+                context: {},
+                assignerRoles: [`${serviceId}:submission-assessor`],
+                workerRoles: [`${serviceId}:submission-assessor`],
+              },
+            },
+          },
         },
       ],
     },
