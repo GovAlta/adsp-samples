@@ -53,7 +53,7 @@ export const getConfiguration = createAsyncThunk(
     config.namespace = config.clientId.split(':')[2];
 
     const directoryResponse = await fetch(
-      `${config.directoryServiceUrl}/api/directory/v2/namespaces/platform/entries`
+      `${config.directoryServiceUrl}/directory/v2/namespaces/platform/entries`
     );
     const entries = await directoryResponse.json();
 
