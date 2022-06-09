@@ -1,4 +1,9 @@
-import { AdspId, GoAError, initializeService } from '@govalta/adsp-service-sdk';
+import {
+  AdspId,
+  GoAError,
+  initializeService,
+  ServiceMetricsValueDefinition,
+} from '@govalta/adsp-service-sdk';
 import * as compression from 'compression';
 import * as cors from 'cors';
 import * as express from 'express';
@@ -30,6 +35,7 @@ async function initializeApp(): Promise<express.Application> {
     directory,
     eventService,
     healthCheck,
+    metricsHandler,
     tenantStrategy,
     tokenProvider,
   } = await initializeService(
@@ -77,6 +83,14 @@ async function initializeApp(): Promise<express.Application> {
           subscriberRoles: [`${serviceId}:${ChatServiceRoles.Chatter}`],
         },
       ],
+      roles: [
+        {
+          role: ChatServiceRoles.Chatter,
+          description:
+            'Chatter role for chat service that grants access to send and receive messages.',
+        },
+      ],
+      values: [ServiceMetricsValueDefinition],
     },
     { logLevel: environment.LOG_LEVEL }
   );
@@ -86,6 +100,7 @@ async function initializeApp(): Promise<express.Application> {
   const router = createChatRouter({ directory, eventService, tokenProvider });
   app.use(
     '/chat/v1',
+    metricsHandler,
     passport.authenticate('tenant', { session: false }),
     configurationHandler,
     router
