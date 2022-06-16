@@ -51,7 +51,7 @@ const store = configureStore({
 store.dispatch(getConfiguration());
 
 const Main: FunctionComponent = () => {
-  const { accessServiceUrl } = useSelector(
+  const { accessServiceUrl, clientId, realm } = useSelector(
     (state: { config: ConfigState }) => state.config
   );
 
@@ -59,8 +59,8 @@ const Main: FunctionComponent = () => {
   if (accessServiceUrl) {
     userManager = createUserManager({
       url: accessServiceUrl,
-      realm: environment.access.realm,
-      client_id: environment.access.client_id,
+      realm,
+      client_id: clientId,
     });
     loadUser(store, userManager);
   }
