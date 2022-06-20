@@ -1,4 +1,5 @@
 import {
+  AdspId,
   adspId,
   EventService,
   GoAError,
@@ -13,6 +14,7 @@ import { messageSent } from './events';
 import { ChatServiceRoles, Room } from './types';
 
 interface RouterProps {
+  serviceId: AdspId;
   eventService: EventService;
   directory: ServiceDirectory;
   tokenProvider: TokenProvider;
@@ -45,6 +47,100 @@ export const getRoom: RequestHandler = async (req, res, next) => {
     next(err);
   }
 };
+
+export function setRoom(
+  serviceId: AdspId,
+  directory: ServiceDirectory,
+  tokenProvider: TokenProvider
+): RequestHandler {
+  return async (req, res, next) => {
+    try {
+      const user = req.user;
+      if (!isAllowedUser(user, null, ChatServiceRoles.Admin)) {
+        throw new GoAError('User not allowed to set room.', {
+          statusCode: 403,
+        });
+      }
+
+      const { roomId } = req.params;
+      const { id, name, description } = req.body;
+      if (id !== roomId) {
+        throw new GoAError('Cannot set room with inconsistent ID.', {
+          statusCode: 400,
+        });
+      }
+
+      const configurationUrl = await directory.getServiceUrl(
+        adspId`urn:ads:platform:configuration-service:v2`
+      );
+
+      const updateUrl = new URL(
+        `v2/configuration/${serviceId.namespace}/${serviceId.service}`,
+        configurationUrl
+      );
+
+      const token = await tokenProvider.getAccessToken();
+      const { data } = await axios.patch<{
+        latest: { configuration: Record<string, Room> };
+      }>(
+        updateUrl.href,
+        {
+          operation: 'UPDATE',
+          update: { [roomId]: { id, name, description } },
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      res.send(data.latest.configuration[roomId]);
+    } catch (err) {
+      next(err);
+    }
+  };
+}
+
+export function deleteRoom(
+  serviceId: AdspId,
+  directory: ServiceDirectory,
+  tokenProvider: TokenProvider
+): RequestHandler {
+  return async (req, res, next) => {
+    try {
+      const user = req.user;
+      if (!isAllowedUser(user, null, ChatServiceRoles.Admin)) {
+        throw new GoAError('User not allowed to delete room.', {
+          statusCode: 403,
+        });
+      }
+
+      const { roomId } = req.params;
+
+      const configurationUrl = await directory.getServiceUrl(
+        adspId`urn:ads:platform:configuration-service:v2`
+      );
+
+      const updateUrl = new URL(
+        `v2/configuration/${serviceId.namespace}/${serviceId.service}`,
+        configurationUrl
+      );
+
+      const token = await tokenProvider.getAccessToken();
+      const { data } = await axios.patch<{
+        latest: { configuration: Record<string, Room> };
+      }>(
+        updateUrl.href,
+        {
+          operation: 'DELETE',
+          property: roomId,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      res.send({ deleted: !data.latest.configuration[roomId] });
+    } catch (err) {
+      next(err);
+    }
+  };
+}
 
 interface MessageEventValue {
   timestamp: string;
@@ -142,6 +238,7 @@ export function sendMessage(eventService: EventService): RequestHandler {
 }
 
 export function createChatRouter({
+  serviceId,
   eventService,
   directory,
   tokenProvider,
@@ -150,6 +247,11 @@ export function createChatRouter({
 
   router.get('/rooms', getRooms);
   router.get('/rooms/:roomId', getRoom, (req, res) => res.send(req['room']));
+  router.put('/rooms/:roomId', setRoom(serviceId, directory, tokenProvider));
+  router.delete(
+    '/rooms/:roomId',
+    deleteRoom(serviceId, directory, tokenProvider)
+  );
   router.get(
     '/rooms/:roomId/messages',
     getRoom,

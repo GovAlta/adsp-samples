@@ -3,11 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { UserState } from 'redux-oidc';
 import styles from './chat.module.scss';
 import { ChatState, connectStream, fetchRooms } from './chat.slice';
-import { Compose } from './compose';
 import { ConnectLabel } from './connectLabel';
-import { Messages } from './messages';
-import { Paging } from './paging';
-import { RoomLabel } from './roomLabel';
+import { Room } from './room';
 import { Rooms } from './rooms';
 
 export const Chat: FunctionComponent = () => {
@@ -27,16 +24,7 @@ export const Chat: FunctionComponent = () => {
         <Rooms />
         <ConnectLabel />
       </div>
-      <div className={styles.room}>
-        <RoomLabel />
-        <div className={styles.messages}>
-          <Messages />
-          <Paging />
-        </div>
-        <div className={styles.message}>
-          <Compose />
-        </div>
-      </div>
+      <Room />
       {!user && (
         <div className={styles.overlay}>
           <p>Sign in to get chatting...</p>

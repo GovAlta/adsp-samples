@@ -16,6 +16,7 @@ export const CHAT_FEATURE_KEY = 'chat';
 // after = the starting point.
 export interface MessageSet {
   top: number;
+  messagesLoaded: boolean;
   next?: string;
 }
 
@@ -189,6 +190,35 @@ export const fetchRooms = createAsyncThunk(
   }
 );
 
+export const setRoom = createAsyncThunk(
+  'chat/setRoom',
+  async (
+    {
+      id,
+      name,
+      description,
+    }: { id: string; name: string; description: string },
+    { getState }
+  ) => {
+    const state = getState() as {
+      user: UserState;
+      chat: ChatState;
+      config: ConfigState;
+    };
+    const token = state.user.user.access_token;
+    const response = await fetch(`/api/chat/v1/rooms/${id}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id, name, description }),
+    });
+
+    return response.json();
+  }
+);
+
 export const fetchMessages = createAsyncThunk(
   'chat/fetchMessages',
   async (
@@ -329,7 +359,7 @@ export const chatReducer = createReducer(initialStartState, (builder) => {
             id: result.id,
             name: result.name,
             description: result.description,
-            set: { top: 10 },
+            set: { top: 10, messagesLoaded: false },
           },
         }),
         {}
@@ -337,6 +367,26 @@ export const chatReducer = createReducer(initialStartState, (builder) => {
     })
     .addCase(fetchRooms.rejected, (state, action) => {
       state.loadingStatus['rooms'] = 'error';
+      state.error = action.error.message;
+    })
+    .addCase(setRoom.pending, (state) => {
+      state.loadingStatus['set-room'] = 'loading';
+    })
+    .addCase(setRoom.fulfilled, (state, action) => {
+      state.loadingStatus['set-room'] = 'loaded';
+      state.roomList = state.roomList.includes(action.meta.arg.id)
+        ? state.roomList
+        : [...state.roomList, action.meta.arg.id];
+      state.rooms = {
+        ...state.rooms,
+        [action.meta.arg.id]: {
+          ...action.payload,
+          set: { top: 10, messagesLoaded: false },
+        },
+      };
+    })
+    .addCase(setRoom.rejected, (state, action) => {
+      state.loadingStatus['set-room'] = 'error';
       state.error = action.error.message;
     })
     .addCase(connectedStream, (state) => {
@@ -362,6 +412,7 @@ export const chatReducer = createReducer(initialStartState, (builder) => {
       );
       state.rooms[state.selectedRoom].set = {
         ...state.rooms[state.selectedRoom].set,
+        messagesLoaded: true,
         next: action.payload.next,
       };
     })
@@ -416,7 +467,8 @@ export const roomListSelector = createSelector(
   (state: { [CHAT_FEATURE_KEY]: ChatState }) =>
     state[CHAT_FEATURE_KEY].roomList,
   (state: { [CHAT_FEATURE_KEY]: ChatState }) => state[CHAT_FEATURE_KEY].rooms,
-  (list, rooms) => list.map((room) => rooms[room])
+  (list, rooms) =>
+    list.map((room) => rooms[room]).sort((a, b) => a.name.localeCompare(b.name))
 );
 
 export const selectedRoomSelector = createSelector(
@@ -434,7 +486,12 @@ export const roomMessagesSelector = createSelector(
   (state: { [CHAT_FEATURE_KEY]: ChatState }) =>
     state[CHAT_FEATURE_KEY].messages,
   (selected, roomMessages, messages) =>
-    (roomMessages[selected] || [])
-      .map((rm) => messages[rm])
+    roomMessages[selected]
+      ?.map((rm) => messages[rm])
       .sort((a, b) => a.timestamp.toUnixInteger() - b.timestamp.toUnixInteger())
+);
+
+export const isAdminSelector = createSelector(
+  (state: { user: UserState }) => state.user.user,
+  (user) => user?.['roles'].includes('chat-admin')
 );

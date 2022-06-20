@@ -1,7 +1,7 @@
 import { GoAButton } from '@abgov/react-components';
 import { FunctionComponent, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { ChatState, MessageContent, sendMessage } from './chat.slice';
+import { useDispatch } from 'react-redux';
+import { MessageContent, sendMessage } from './chat.slice';
 import styles from './compose.module.scss';
 
 interface ComposeFilePreview {
@@ -25,10 +25,11 @@ const ComposeFilePreview: FunctionComponent<ComposeFilePreview> = ({
   return <img alt={file.name} src={fileUrl} />;
 };
 
-export const Compose: FunctionComponent = () => {
-  const selectedRoom = useSelector(
-    (state: { chat: ChatState }) => state.chat.selectedRoom
-  );
+interface ComposeProps {
+  roomId: string;
+}
+
+export const Compose: FunctionComponent<ComposeProps> = ({ roomId }) => {
   const [draft, setDraft] = useState<MessageContent>(['']);
   const dispatch = useDispatch();
   return (
@@ -87,7 +88,7 @@ export const Compose: FunctionComponent = () => {
           Send
         </GoAButton>
       </div>
-      {!selectedRoom && <div className={styles.overlay} />}
+      {!roomId && <div className={styles.overlay} />}
     </div>
   );
 };

@@ -17,6 +17,7 @@ import {
   MessageSentEventDefinition,
 } from './chat';
 import { environment } from './environments/environment';
+import { handleRoomUpdate } from './io';
 
 async function initializeApp(): Promise<express.Application> {
   const app = express();
@@ -38,6 +39,8 @@ async function initializeApp(): Promise<express.Application> {
     metricsHandler,
     tenantStrategy,
     tokenProvider,
+    clearCached,
+    logger,
   } = await initializeService(
     {
       displayName: 'Chat service',
@@ -82,12 +85,37 @@ async function initializeApp(): Promise<express.Application> {
           publicSubscribe: false,
           subscriberRoles: [`${serviceId}:${ChatServiceRoles.Chatter}`],
         },
+        {
+          id: 'room-updates',
+          name: 'Room updates',
+          description:
+            'Stream of configuration update events for room service.',
+          publicSubscribe: false,
+          subscriberRoles: ['urn:ads:platform:tenant-service:platform-service'],
+          events: [
+            {
+              namespace: 'configuration-service',
+              name: 'configuration-updated',
+              criteria: {
+                context: {
+                  namespace: serviceId.namespace,
+                  name: serviceId.service,
+                },
+              },
+            },
+          ],
+        },
       ],
       roles: [
         {
           role: ChatServiceRoles.Chatter,
           description:
             'Chatter role for chat service that grants access to send and receive messages.',
+        },
+        {
+          role: ChatServiceRoles.Admin,
+          description:
+            'Administrator role for chat service that grants ability to create rooms.',
         },
       ],
       values: [ServiceMetricsValueDefinition],
@@ -97,7 +125,16 @@ async function initializeApp(): Promise<express.Application> {
 
   passport.use('tenant', tenantStrategy);
 
-  const router = createChatRouter({ directory, eventService, tokenProvider });
+  await handleRoomUpdate(serviceId, logger, directory, tokenProvider, () =>
+    clearCached(serviceId)
+  );
+
+  const router = createChatRouter({
+    serviceId,
+    directory,
+    eventService,
+    tokenProvider,
+  });
   app.use(
     '/chat/v1',
     metricsHandler,

@@ -18,25 +18,6 @@
   }
 }
 
-.room {
-  flex: 3;
-  display: flex;
-  flex-direction: column;
-}
-
-.messages {
-  flex: 3;
-  display: flex;
-  flex-direction: column-reverse;
-  overflow-y: auto;
-}
-
-.message {
-  position: relative;
-  flex: 1;
-  min-height: 240px;
-}
-
 .overlay {
   z-index: 1;
   position: absolute;
