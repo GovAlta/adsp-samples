@@ -1,6 +1,12 @@
 import { FunctionComponent } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { ChatState, roomListSelector, selectRoom } from './chat.slice';
+import {
+  ChatState,
+  isAdminSelector,
+  roomListSelector,
+  selectRoom,
+} from './chat.slice';
+import { NewRoom } from './newRoom';
 import styles from './rooms.module.scss';
 
 export const Rooms: FunctionComponent = () => {
@@ -8,6 +14,7 @@ export const Rooms: FunctionComponent = () => {
   const selectedRoom = useSelector(
     (state: { chat: ChatState }) => state.chat.selectedRoom
   );
+  const isAdmin = useSelector(isAdminSelector);
   const dispatch = useDispatch();
   return (
     <ul className={styles.rooms}>
@@ -24,6 +31,7 @@ export const Rooms: FunctionComponent = () => {
           {room.name}
         </li>
       ))}
+      {isAdmin && <NewRoom />}
     </ul>
   );
 };

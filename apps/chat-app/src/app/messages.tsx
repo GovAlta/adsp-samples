@@ -1,15 +1,12 @@
 import { GoAElementLoader } from '@abgov/react-components';
 import { DateTime } from 'luxon';
-import { FunctionComponent, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { FunctionComponent } from 'react';
+import { useSelector } from 'react-redux';
 import {
   ChatState,
-  fetchMessages,
   FileContent,
   Message,
-  Room,
   roomMessagesSelector,
-  selectedRoomSelector,
 } from './chat.slice';
 import styles from './messages.module.scss';
 
@@ -64,27 +61,8 @@ const MessageItem: FunctionComponent<MessageItemProps> = ({ message }) => {
   );
 };
 
-function needsDispatch(room: Room, hasMessages: boolean) {
-  // Needs dispatch on the fir
-  return room && !hasMessages;
-}
-
 export const Messages: FunctionComponent = () => {
   const messages = useSelector(roomMessagesSelector);
-  const room = useSelector(selectedRoomSelector);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (needsDispatch(room, !!messages?.length)) {
-      dispatch(
-        fetchMessages({
-          roomId: room.id,
-          top: room.set.top,
-          after: room.set.next,
-        })
-      );
-    }
-  }, [dispatch, room, messages]);
 
   return (
     <ul className={styles.messages}>

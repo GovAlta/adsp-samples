@@ -5,5 +5,6 @@ export interface Room {
 }
 
 export enum ChatServiceRoles {
-  Chatter = 'chatter'
+  Chatter = 'chatter',
+  Admin = 'chat-admin',
 }

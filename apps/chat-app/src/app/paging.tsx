@@ -1,13 +1,21 @@
 import { FunctionComponent } from 'react';
 import { GoAButton } from '@abgov/react-components';
-import { ChatState, fetchMessages, selectedRoomSelector } from './chat.slice';
+import {
+  ChatState,
+  fetchMessages,
+  Room,
+} from './chat.slice';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './paging.module.scss';
 
-export const Paging: FunctionComponent = () => {
-  const room = useSelector(selectedRoomSelector);
+interface PagingProps {
+  room: Room;
+}
+
+export const Paging: FunctionComponent<PagingProps> = ({ room }) => {
   const isLoading = useSelector(
-    (state: { chat: ChatState }) => state.chat.loadingStatus['messages'] === 'loading'
+    (state: { chat: ChatState }) =>
+      state.chat.loadingStatus['messages'] === 'loading'
   );
   const dispatch = useDispatch();
 
