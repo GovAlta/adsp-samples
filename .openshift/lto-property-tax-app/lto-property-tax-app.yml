@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Template
 metadata:
-  name: opportunity-intake-app
+  name: lto-property-tax-app
 labels:
-  app: opportunity-intake-app
+  app: lto-property-tax-app
 parameters:
   - name: INFRA_PROJECT
     description: Project used for build infrastructure.
@@ -17,17 +17,12 @@ parameters:
   - name: APP_NAME
     description: Name of the application.
     displayName: Application Name
-    value: opportunity-intake-app
+    value: lto-property-tax-app
     required: true
   - name: DEPLOY_TAG
     description: Tag of the ImageStream to deploy.
     displayName: Deploy Tag
     value: latest
-    required: true
-  - name: COMMIT_SHA
-    description: SHA of the commit that triggered the deployment.
-    displayName: Commit SHA
-    value: ''
     required: true
 objects:
   - apiVersion: v1
@@ -48,7 +43,7 @@ objects:
       output:
         to:
           kind: ImageStreamTag
-          name: '${APP_NAME}:latest'
+          name: "${APP_NAME}:latest"
       runPolicy: Serial
       source:
         binary: {}
@@ -57,8 +52,8 @@ objects:
         dockerStrategy:
           buildArgs:
             - name: PROJECT
-              value: opportunity-intake-app
-          dockerfilePath: .openshift/opportunity-intake-app/Dockerfile
+              value: lto-property-tax-app
+          dockerfilePath: .openshift/lto-property-tax-app/Dockerfile
         type: Docker
       triggers: []
   - apiVersion: v1
@@ -72,9 +67,9 @@ objects:
       configuration: |-
         {
           "access": {
-            "url": "https://access.alpha.alberta.ca",
-            "realm": "",
-            "client_id": ""
+            "url": "https://access-uat.alberta.ca",
+            "realm": "6d2d44c9-22b2-4e12-90da-8547480637f6",
+            "client_id": "urn:ads:land-titles:${APP_NAME}"
           }
         }
   - apiVersion: v1
@@ -83,7 +78,7 @@ objects:
       name: ${APP_NAME}
       namespace: ${PROJECT}
     spec:
-      replicas: 0
+      replicas: 1
       selector:
         name: ${APP_NAME}
       strategy:
@@ -99,8 +94,6 @@ objects:
         metadata:
           labels:
             name: ${APP_NAME}
-          annotations:
-            commit: ${COMMIT_SHA}
         spec:
           containers:
             - name: ${APP_NAME}
@@ -109,7 +102,13 @@ objects:
                 - containerPort: 3333
                   name: http
                   protocol: TCP
-              resources: {}
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 100Mi
+                requests:
+                  cpu: 20m
+                  memory: 50Mi
               terminationMessagePath: /dev/termination-log
               volumeMounts:
                 - mountPath: /opt/app-root/src/config
@@ -131,7 +130,7 @@ objects:
               - ${APP_NAME}
             from:
               kind: ImageStreamTag
-              name: '${APP_NAME}:${DEPLOY_TAG}'
+              name: "${APP_NAME}:${DEPLOY_TAG}"
               namespace: ${INFRA_PROJECT}
           type: ImageChange
   - apiVersion: v1
