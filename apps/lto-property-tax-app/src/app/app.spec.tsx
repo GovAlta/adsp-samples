@@ -36,16 +36,4 @@ describe('App', () => {
 
     expect(baseElement).toBeTruthy();
   });
-
-  it('should have a greeting as the title', () => {
-    const { getByText } = render(
-      <BrowserRouter>
-        <Provider store={store}>
-          <App userManager={userManager} />
-        </Provider>
-      </BrowserRouter>
-    );
-
-    expect(getByText('Property tax penalty reimbursement')).toBeTruthy();
-  });
 });
