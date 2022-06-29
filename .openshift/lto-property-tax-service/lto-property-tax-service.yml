@@ -94,6 +94,8 @@ objects:
               envFrom:
                 - configMapRef:
                     name: ${APP_NAME}
+                - secretRef:
+                    name: ${APP_NAME}
               env:
                 - name: port
                   value: "3333"
