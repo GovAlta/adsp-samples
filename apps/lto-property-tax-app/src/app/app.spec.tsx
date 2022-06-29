@@ -46,6 +46,6 @@ describe('App', () => {
       </BrowserRouter>
     );
 
-    expect(getByText('Welcome to lto-property-tax-app!')).toBeTruthy();
+    expect(getByText('Property tax penalty reimbursement')).toBeTruthy();
   });
 });
