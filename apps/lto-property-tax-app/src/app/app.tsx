@@ -11,6 +11,7 @@ import {
   publicResourceSelector,
   privateResourceSelector,
 } from './start.slice';
+import { Screening } from './screening';
 
 interface AppProps {
   userManager: UserManager;
@@ -33,11 +34,12 @@ export function App({ userManager }: AppProps) {
   return (
     <div className={styles.app}>
       <GoAHeader
-        serviceLevel="alpha"
-        serviceName="Digital Service Example"
+        serviceLevel="live"
+        serviceName="Property tax penalty reimbursement"
         serviceHome="/"
       />
-      <GoAHeroBanner
+      <Screening />
+      {/* <GoAHeroBanner
         title="Quick start of a digital service"
         backgroundUrl={'../assets/banner.jpg'}
       />
@@ -77,7 +79,7 @@ export function App({ userManager }: AppProps) {
             </li>
           </ul>
         </section>
-      </main>
+      </main> */}
       <footer className={styles.footer}>
         <div className="goa-socialconnect">
           <div className="goa-title">Connect with us on</div>
