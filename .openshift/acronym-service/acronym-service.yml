@@ -217,7 +217,7 @@ objects:
       name: ${APP_NAME}
       namespace: ${PROJECT}
     spec:
-      replicas: 0
+      replicas: 2
       selector:
         name: ${APP_NAME}
       strategy:

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.5/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.5",
+  "version": "1.0.0",
+  "id": "7a984deb-c0f9-4fb1-bda2-892b73ac9f7d",
+  "packageName": "ca.alberta.adsp.samples.acronym-service",
+  "developer": {
+    "name": "ADSP Platform team",
+    "websiteUrl": "https://adsp.alberta.ca",
+    "privacyUrl": "https://adsp.alberta.ca",
+    "termsOfUseUrl": "https://adsp.alberta.ca"
+  },
+  "icons": {
+    "outline": "icon-outline.png",
+    "color": "icon-color.png"
+  },
+  "name": {
+    "short": "ADSP Acronyms",
+    "full": "ADSP Acronyms"
+  },
+  "description": {
+    "short": "Teams App for ADSP acronym service.",
+    "full": "Teams App that provides descriptions of acronyms using ADSP acronym service."
+  },
+  "accentColor": "#FFFFFF",
+  "bots": [
+    {
+      "botId": "7a984deb-c0f9-4fb1-bda2-892b73ac9f7d",
+      "scopes": [
+        "team",
+        "personal"
+      ],
+      "supportsFiles": false,
+      "isNotificationOnly": false
+    }
+  ],
+  "permissions": [
+    "identity",
+    "messageTeamMembers"
+  ],
+  "validDomains": []
+}

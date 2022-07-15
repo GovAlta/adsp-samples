@@ -34,6 +34,7 @@ export function getAcronym(): RequestHandler {
   return async (req, res, next) => {
     try {
       const { acronym } = req.params;
+
       const [configuration] =
         await req.getConfiguration<AcronymConfiguration>();
 
@@ -76,8 +77,8 @@ export function setAcronym(
       const configurationServiceUrl = await directory.getServiceUrl(
         adspId`urn:ads:platform:configuration-service`
       );
-      const token = await tokenProvider.getAccessToken();
 
+      const token = await tokenProvider.getAccessToken();
       const request = !description
         ? {
             operation: 'DELETE',

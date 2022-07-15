@@ -178,6 +178,9 @@ class AcronymBotActivityHandler extends ActivityHandler {
         description: `Review submission for ${acronym} with definition: ${represents} (${context}): ${description}`,
         context: {
           acronym,
+        },
+        data: {
+          acronym,
           represents,
           context,
           description,
