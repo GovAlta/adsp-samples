@@ -5,9 +5,11 @@ import {
   TokenProvider,
 } from '@govalta/adsp-service-sdk';
 import { io } from 'socket.io-client';
+import { Logger } from 'winston';
 
 export async function handleAcronymUpdate(
   serviceId: AdspId,
+  logger: Logger,
   directory: ServiceDirectory,
   tokenProvider: TokenProvider,
   onUpdate: () => void
@@ -25,6 +27,10 @@ export async function handleAcronymUpdate(
     },
     withCredentials: true,
     extraHeaders: { Authorization: `Bearer ${token}` },
+  });
+
+  socket.on('connect', () => {
+    logger.info('Connected for acronym updates...');
   });
 
   socket.on('configuration-service:configuration-updated', () => {

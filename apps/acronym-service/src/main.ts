@@ -3,6 +3,7 @@ import {
   AdspId,
   GoAError,
   initializeService,
+  ServiceMetricsValueDefinition,
 } from '@govalta/adsp-service-sdk';
 import axios from 'axios';
 import * as compression from 'compression';
@@ -23,7 +24,6 @@ import {
 import { environment } from './environments/environment';
 import { handleAcronymUpdate } from './io';
 import { createConversationStateStorage } from './redis';
-import { createLogger } from './winston';
 
 function connectRedis() {
   const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } = environment;
@@ -50,16 +50,16 @@ async function initializeApp(): Promise<express.Application> {
     app.set('trust proxy', environment.TRUSTED_PROXY);
   }
 
-  const logger = createLogger('acronym-service', environment.LOG_LEVEL);
-
   const serviceId = AdspId.parse(environment.CLIENT_ID);
   const {
     clearCached,
     configurationHandler,
     directory,
     healthCheck,
+    metricsHandler,
     tenantStrategy,
     tokenProvider,
+    logger,
   } = await initializeService(
     {
       displayName: 'Acronym service',
@@ -92,6 +92,7 @@ async function initializeApp(): Promise<express.Application> {
           ],
         },
       ],
+      values: [ServiceMetricsValueDefinition],
       serviceConfigurations: [
         {
           serviceId: adspId`urn:ads:platform:task-service`,
@@ -109,18 +110,19 @@ async function initializeApp(): Promise<express.Application> {
         },
       ],
     },
-    logger
+    { logLevel: environment.LOG_LEVEL }
   );
 
   passport.use('tenant', tenantStrategy);
   passport.use('anonymous', new AnonymousStrategy());
 
-  await handleAcronymUpdate(serviceId, directory, tokenProvider, () =>
+  await handleAcronymUpdate(serviceId, logger, directory, tokenProvider, () =>
     clearCached(serviceId)
   );
 
   app.use(
     '/acronym/v1',
+    metricsHandler,
     passport.authenticate(['tenant', 'anonymous'], { session: false }),
     configurationHandler
   );
