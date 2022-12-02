@@ -25,7 +25,7 @@ export const Paging: FunctionComponent<PagingProps> = ({ room }) => {
       {room?.set?.next && (
         <GoAButton
           disabled={isLoading}
-          buttonType="secondary"
+          type="secondary"
           onClick={() => {
             dispatch(
               fetchMessages({

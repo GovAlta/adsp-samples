@@ -1,8 +1,4 @@
-import { GoAButton } from '@abgov/react-components';
-import {
-  GoAFormActions,
-  GoAIconButton,
-} from '@abgov/react-components/experimental';
+import { GoAButton, GoAIconButton } from '@abgov/react-components';
 import { FunctionComponent, useState } from 'react';
 import { FormField } from '../../components/formField';
 import { SectionProps } from './types';
@@ -30,7 +26,7 @@ export const ExamplesSection: FunctionComponent<SectionProps> = ({
         <h3>Provide examples of its use</h3>
         {showSummary && (
           <GoAIconButton
-            type="create"
+            icon="create"
             size="medium"
             onClick={() => {
               setShowReadOnly(!showReadOnly);
@@ -44,7 +40,7 @@ export const ExamplesSection: FunctionComponent<SectionProps> = ({
             <h4>Example #{idx + 1}</h4>
             {!showReadOnly && (
               <GoAIconButton
-                type="trash"
+                icon="trash"
                 size="medium"
                 onClick={() => {
                   const update = {
@@ -116,20 +112,19 @@ export const ExamplesSection: FunctionComponent<SectionProps> = ({
       ))}
 
       {!showReadOnly && (
-        <GoAFormActions alignment="right">
+        <div>
           <GoAButton
-            buttonType="secondary"
-            onClick={(e) => {
+            type="secondary"
+            onClick={() => {
               onUpdate({
                 ...value,
                 examples: [...examples, { users: '', need: '', use: '' }],
               });
-              e.preventDefault();
             }}
           >
             Add example
           </GoAButton>
-        </GoAFormActions>
+        </div>
       )}
     </section>
   );

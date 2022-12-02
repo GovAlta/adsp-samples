@@ -1,9 +1,4 @@
-import { GoAButton, GoACheckbox } from '@abgov/react-components';
-import {
-  GoAForm,
-  GoAFormActions,
-  GoAFormItem,
-} from '@abgov/react-components/experimental';
+import { GoAButton, GoAFormItem } from '@abgov/react-components';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../main';
@@ -11,14 +6,14 @@ import { AppDispatch } from '../../main';
 export const ScreeningQuestions = () => {
   const dispatch = useDispatch<AppDispatch>();
   return (
-    <GoAForm>
+    <form>
       <h3>Let start with some quick questions</h3>
-      <GoAFormItem>Question A?</GoAFormItem>
-      <GoAFormItem>Question B?</GoAFormItem>
-      <GoAFormItem>Question C?</GoAFormItem>
-      <GoAFormActions alignment="right">
+      <GoAFormItem label="Question A?"></GoAFormItem>
+      <GoAFormItem label="Question B?"></GoAFormItem>
+      <GoAFormItem label="Question C?"></GoAFormItem>
+      <div>
         <GoAButton onClick={() => dispatch(push('new'))}>Next</GoAButton>
-      </GoAFormActions>
-    </GoAForm>
+      </div>
+    </form>
   );
 };

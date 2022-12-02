@@ -1,4 +1,4 @@
-import { GoABadge, GoAIconButton } from '@abgov/react-components/experimental';
+import { GoABadge, GoAIconButton } from '@abgov/react-components';
 import { DateTime } from 'luxon';
 import { FunctionComponent, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -32,7 +32,7 @@ export const Submission: FunctionComponent<SubmissionItemProps> = ({
         <td>
           {status === 'submitted' && (
             <GoAIconButton
-              type={showDetails ? 'eye-off' : 'eye'}
+              icon={showDetails ? 'eye-off' : 'eye'}
               onClick={() => {
                 setShowDetails(!showDetails);
                 dispatch(getSubmissionDetails({ formId: form.id }));

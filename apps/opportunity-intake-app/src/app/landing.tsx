@@ -6,7 +6,7 @@ export const Landing: FunctionComponent = () => {
   return (
     <>
       <GoAHeroBanner
-        title="Quick start of a digital service"
+        heading="Quick start of a digital service"
         backgroundUrl={'../assets/banner.jpg'}
       />
       <main>
@@ -18,7 +18,7 @@ export const Landing: FunctionComponent = () => {
           </p>
           <h3>A few things you might want to do next:</h3>
         </section>
-      </main>      
+      </main>
     </>
   );
 };

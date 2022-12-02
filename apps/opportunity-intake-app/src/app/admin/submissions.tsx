@@ -1,4 +1,4 @@
-import { GoAPageLoader } from '@abgov/react-components';
+import { GoACircularProgress } from '@abgov/react-components';
 import { FunctionComponent, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from '../../main';
@@ -45,7 +45,11 @@ const SubmissionList: FunctionComponent = () => {
         {(!after || !submissions.length) && isLoading ? (
           <tr key="loading">
             <td colSpan={5}>
-              <GoAPageLoader visible={true} />
+              <GoACircularProgress
+                visible={true}
+                variant="inline"
+                size="small"
+              />
             </td>
           </tr>
         ) : (

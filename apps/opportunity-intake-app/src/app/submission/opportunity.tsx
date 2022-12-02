@@ -1,4 +1,4 @@
-import { GoAPageLoader } from '@abgov/react-components';
+import { GoACircularProgress } from '@abgov/react-components';
 import { FunctionComponent, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Redirect, useParams } from 'react-router';
@@ -38,7 +38,7 @@ export const Opportunity: FunctionComponent = () => {
 
   return (
     <div>
-      <GoAPageLoader message="Loading draft..." visible={isLoading} />
+      <GoACircularProgress message="Loading draft..." visible={isLoading} />
       {
         // Form exists, is in draft, and form data not loaded.
         !isLoading && form?.status === 'draft' && !formData && <Verify />

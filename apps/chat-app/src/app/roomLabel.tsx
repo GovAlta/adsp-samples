@@ -1,4 +1,4 @@
-import { GoAIconButton } from '@abgov/react-components/experimental';
+import { GoAIconButton } from '@abgov/react-components';
 import { FunctionComponent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from '../main';
@@ -28,8 +28,8 @@ export const RoomLabel: FunctionComponent<RoomLabelProps> = ({ room }) => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
-            <GoAIconButton
-              type="close"
+            <GoAIconButton 
+              icon="close"
               size="medium"
               onClick={() => {
                 setDescription(room.description);
@@ -37,7 +37,7 @@ export const RoomLabel: FunctionComponent<RoomLabelProps> = ({ room }) => {
               }}
             />
             <GoAIconButton
-              type="checkmark"
+              icon="checkmark"
               size="medium"
               onClick={() => {
                 dispatch(
@@ -54,7 +54,7 @@ export const RoomLabel: FunctionComponent<RoomLabelProps> = ({ room }) => {
             </span>
             {isAdmin && (
               <GoAIconButton
-                type="create"
+                icon="create"
                 size="medium"
                 onClick={() => setEdit(true)}
               />

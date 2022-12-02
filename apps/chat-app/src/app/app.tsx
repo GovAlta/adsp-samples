@@ -2,7 +2,11 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { UserManager } from 'oidc-client';
 import { UserState } from 'redux-oidc';
-import { GoAButton, GoAHeader } from '@abgov/react-components';
+import {
+  GoAButton,
+  GoAAppHeader,
+  GoAMicrositeHeader,
+} from '@abgov/react-components';
 
 import styles from './app.module.scss';
 import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
@@ -18,11 +22,8 @@ export function App({ userManager }: AppProps) {
 
   return (
     <div className={styles.app}>
-      <GoAHeader
-        serviceLevel="alpha"
-        serviceName="ADSP Chat Example"
-        serviceHome="/"
-      >
+      <GoAMicrositeHeader type="beta" />
+      <GoAAppHeader heading="ADSP Chat Example" url="/">
         {user ? (
           <GoAButton onClick={() => userManager.signoutRedirect()}>
             Sign Out
@@ -32,7 +33,7 @@ export function App({ userManager }: AppProps) {
             Sign In
           </GoAButton>
         )}
-      </GoAHeader>
+      </GoAAppHeader>
       <Router>
         <Switch>
           <Route path="/chat">

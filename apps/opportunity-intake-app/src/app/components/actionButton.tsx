@@ -1,4 +1,4 @@
-import { GoAButton, GoAElementLoader } from '@abgov/react-components';
+import { GoAButton, GoACircularProgress } from '@abgov/react-components';
 import { FunctionComponent } from 'react';
 import styles from './actionButton.module.scss';
 
@@ -20,15 +20,14 @@ export const ActionButton: FunctionComponent<ActionButtonProps> = ({
     <GoAButton
       {...props}
       disabled={isExecuting || disabled}
-      onClick={(e) => {
+      onClick={() => {
         onClick();
-        e.preventDefault();
       }}
     >
-      <GoAElementLoader
+      <GoACircularProgress
         visible={isExecuting}
-        baseColour="#fff"
-        spinnerColour="#0070c4"
+        variant="inline"
+        size="small"
       />
       <span className={styles.content} data-executing={isExecuting}>
         {children}

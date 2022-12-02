@@ -1,6 +1,4 @@
-import {
-  GoAIconButton,
-} from '@abgov/react-components/experimental';
+import { GoAIconButton } from '@abgov/react-components';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../main';
@@ -22,7 +20,7 @@ export const NewRoom = () => {
             onChange={(e) => setName(e.target.value)}
           />
           <GoAIconButton
-            type="close"
+            icon="close"
             size="medium"
             onClick={() => {
               setName('');
@@ -30,7 +28,7 @@ export const NewRoom = () => {
             }}
           />
           <GoAIconButton
-            type="checkmark"
+            icon="checkmark"
             size="medium"
             disabled={!name}
             onClick={() => {
@@ -48,7 +46,7 @@ export const NewRoom = () => {
         </span>
       ) : (
         <GoAIconButton
-          type="add-circle"
+          icon="add-circle"
           size="medium"
           onClick={() => setShowAdd(true)}
         />

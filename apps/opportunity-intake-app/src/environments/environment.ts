@@ -9,6 +9,6 @@ export const environment = {
     client_id: 'urn:ads:autotest:opportunity-intake-app',
   },
   directory: {
-    url: 'https://tenant-service.adsp-dev.gov.ab.ca'
+    url: 'https://directory-service.adsp-dev.gov.ab.ca'
   }
 };

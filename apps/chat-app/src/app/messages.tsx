@@ -1,4 +1,4 @@
-import { GoAElementLoader } from '@abgov/react-components';
+import { GoACircularProgress } from '@abgov/react-components';
 import { DateTime } from 'luxon';
 import { FunctionComponent } from 'react';
 import { useSelector } from 'react-redux';
@@ -20,11 +20,7 @@ const MessageFile: FunctionComponent<MessageFileProps> = ({ content }) => {
   const files = useSelector((state: { chat: ChatState }) => state.chat.files);
   const imgSrc = files[content.urn];
   return loadingStatus[`download-${content.urn}`] === 'loading' ? (
-    <GoAElementLoader
-      visible={true}
-      baseColour="#fff"
-      spinnerColour="#0070c4"
-    />
+    <GoACircularProgress variant="inline" size="small" />
   ) : (
     <img alt={content.filename} src={imgSrc} />
   );
@@ -37,7 +33,7 @@ const MessageItem: FunctionComponent<MessageItemProps> = ({ message }) => {
   return (
     <li key={`${message.hash}`}>
       <div>
-        <b>{message.from.name}</b>
+        <b>{message.from?.name || '???'}</b>
         <span>
           {message.timestamp.toFormat(
             `h:mm a ${

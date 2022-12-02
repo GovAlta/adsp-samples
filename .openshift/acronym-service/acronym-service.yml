@@ -67,7 +67,7 @@ objects:
         component: database
       sessionAffinity: None
       type: ClusterIP
-  - apiVersion: v1
+  - apiVersion: apps.openshift.io/v1
     kind: DeploymentConfig
     metadata:
       annotations:
@@ -156,15 +156,14 @@ objects:
             lastTriggeredImage: ""
           type: ImageChange
         - type: ConfigChange
-
-  - apiVersion: v1
+  - apiVersion: image.openshift.io/v1
     kind: ImageStream
     metadata:
       labels:
         apply-init: "true"
       name: ${APP_NAME}
       namespace: ${INFRA_PROJECT}
-  - apiVersion: v1
+  - apiVersion: build.openshift.io/v1
     kind: BuildConfig
     metadata:
       labels:
@@ -211,7 +210,7 @@ objects:
       BOT_TENANT_ID:
       BOT_CLIENT_ID:
       BOT_CLIENT_SECRET:
-  - apiVersion: v1
+  - apiVersion: apps.openshift.io/v1
     kind: DeploymentConfig
     metadata:
       name: ${APP_NAME}
@@ -295,7 +294,7 @@ objects:
         name: ${APP_NAME}
       sessionAffinity: None
       type: ClusterIP
-  - apiVersion: v1
+  - apiVersion: route.openshift.io/v1
     kind: Route
     metadata:
       name: ${APP_NAME}
