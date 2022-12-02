@@ -1,5 +1,6 @@
-import { GoAPageLoader } from '@abgov/react-components';
-import { AnyAction, configureStore } from '@reduxjs/toolkit';
+import { GoACircularProgress } from '@abgov/react-components';
+import '@abgov/styles/styles.esm.css';
+import { configureStore } from '@reduxjs/toolkit';
 import {
   ConnectedRouter,
   connectRouter,
@@ -110,7 +111,7 @@ const Main: FunctionComponent = () => {
       </React.StrictMode>
     </OidcProvider>
   ) : (
-    <GoAPageLoader />
+    <GoACircularProgress variant="fullscreen" size="large" />
   );
 };
 const root = ReactDOM.createRoot(

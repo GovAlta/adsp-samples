@@ -1,4 +1,4 @@
-import { GoAIconButton } from '@abgov/react-components/experimental';
+import { GoAIconButton } from '@abgov/react-components';
 import { FunctionComponent, useState } from 'react';
 import { FormField } from '../../components/formField';
 import { SectionProps } from './types';
@@ -18,7 +18,7 @@ export const GeneralSection: FunctionComponent<SectionProps> = ({
         <h3>General information</h3>
         {showSummary && (
           <GoAIconButton
-            type="create"
+            icon="create"
             size="medium"
             onClick={() => {
               setShowReadOnly(!showReadOnly);

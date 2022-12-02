@@ -76,7 +76,7 @@ export const Compose: FunctionComponent<ComposeProps> = ({ roomId }) => {
             setDraft(update);
           }}
         />
-        <GoAButton buttonType="secondary" onClick={() => setDraft([''])}>
+        <GoAButton type="secondary" onClick={() => setDraft([''])}>
           Clear
         </GoAButton>
         <GoAButton

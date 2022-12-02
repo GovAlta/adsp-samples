@@ -1,5 +1,4 @@
-import { GoAButton, GoAElementLoader } from '@abgov/react-components';
-import { GoAIconButton } from '@abgov/react-components/experimental';
+import { GoACircularProgress, GoAIconButton } from '@abgov/react-components';
 import { FunctionComponent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from '../../../main';
@@ -44,18 +43,14 @@ const FileItem: FunctionComponent<FileItemProps> = ({
           {filename}
           {!showReadOnly && (
             <GoAIconButton
-              type="trash"
+              icon="trash"
               size="medium"
               onClick={() => dispatch(deleteFormFile({ formId, fileId }))}
             />
           )}
         </span>
       ) : (
-        <GoAElementLoader
-          visible={true}
-          baseColour="#fff"
-          spinnerColour="#0070c4"
-        />
+        <GoACircularProgress visible={true} variant="inline" size="small" />
       )}
     </li>
   );
@@ -79,7 +74,7 @@ export const DocumentsSection: FunctionComponent<DocumentsSectionProps> = ({
         <h3>Supporting documents</h3>
         {showSummary && (
           <GoAIconButton
-            type="create"
+            icon="create"
             size="medium"
             onClick={() => {
               setShowReadOnly(!showReadOnly);

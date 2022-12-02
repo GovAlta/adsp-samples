@@ -6,7 +6,7 @@ export const Landing: FunctionComponent = () => {
   return (
     <>
       <GoAHeroBanner
-        title="Chat: example of ADSP app and service"
+        heading="Chat: example of ADSP app and service"
         backgroundUrl={'../assets/banner.jpg'}
       />
       <main>

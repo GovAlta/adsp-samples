@@ -1,4 +1,4 @@
-import { GoAFormItem } from '@abgov/react-components/experimental';
+import { GoAFormItem } from '@abgov/react-components';
 import { FunctionComponent } from 'react';
 
 interface FormFieldProps {
@@ -16,11 +16,7 @@ export const FormField: FunctionComponent<FormFieldProps> = ({
   children,
 }) => {
   return (
-    <GoAFormItem>
-      <label htmlFor={children?.[0]?.props.id}>
-        {label}
-        {isRequired && ' *'}
-      </label>
+    <GoAFormItem label={label + isRequired ? ' *' : ''}>
       {isReadOnly ? <div>{value}</div> : children}
     </GoAFormItem>
   );

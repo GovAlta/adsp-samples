@@ -14,8 +14,8 @@ export const Admin: FunctionComponent = () => {
           <section>
             <GoACallout
               type="information"
-              title="Sign in to access"
-              content="Sign in using your account to access the opportunity intake administration."
+              heading="Sign in to access"
+              children="Sign in using your account to access the opportunity intake administration."
             />
           </section>
         </Route>

@@ -1,9 +1,8 @@
-import { GoAElementLoader, GoAPageLoader } from '@abgov/react-components';
 import {
-  GoAForm,
+  GoACircularProgress,
   GoAFormItem,
   GoAIconButton,
-} from '@abgov/react-components/experimental';
+} from '@abgov/react-components';
 import { FunctionComponent } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from '../../main';
@@ -34,7 +33,7 @@ const FileItem: FunctionComponent<FileItemProps> = ({ fileId }) => {
         <span>
           {filename}
           <GoAIconButton
-            type="download"
+            icon="download"
             size="medium"
             onClick={() => {
               dispatch(downloadFile({ fileId, filename }));
@@ -42,11 +41,7 @@ const FileItem: FunctionComponent<FileItemProps> = ({ fileId }) => {
           />
         </span>
       ) : (
-        <GoAElementLoader
-          visible={true}
-          baseColour="#fff"
-          spinnerColour="#0070c4"
-        />
+        <GoACircularProgress visible={true} variant="inline" size="small" />
       )}
     </li>
   );
@@ -64,25 +59,21 @@ export const Details: FunctionComponent<DetailsProps> = ({ form }) => {
   return (
     <section className={styles.details}>
       {isLoading ? (
-        <GoAPageLoader visible={true} />
+        <GoACircularProgress visible={true} variant="fullscreen" size="large" />
       ) : (
-        <GoAForm>
+        <form>
           <section>
             <h3>General information</h3>
-            <GoAFormItem>
-              <label>Ministry</label>
+            <GoAFormItem label="Ministry">
               <div>{details?.data?.ministry}</div>
             </GoAFormItem>
-            <GoAFormItem>
-              <label>Program</label>
+            <GoAFormItem label="Program">
               <div>{details?.data?.program}</div>
             </GoAFormItem>
-            <GoAFormItem>
-              <label>Team</label>
+            <GoAFormItem label="Team">
               <div>{details?.data?.team}</div>
             </GoAFormItem>
-            <GoAFormItem>
-              <label>Description</label>
+            <GoAFormItem label="Description">
               <div>{details?.data?.description}</div>
             </GoAFormItem>
           </section>
@@ -90,16 +81,13 @@ export const Details: FunctionComponent<DetailsProps> = ({ form }) => {
             <h3>Examples</h3>
             {details?.data?.examples?.map(({ users, need, use }, idx) => (
               <div key={idx}>
-                <GoAFormItem>
-                  <label>Users</label>
+                <GoAFormItem label="Users">
                   <div>{users}</div>
                 </GoAFormItem>
-                <GoAFormItem>
-                  <label>Need</label>
+                <GoAFormItem label="Need">
                   <div>{need}</div>
                 </GoAFormItem>
-                <GoAFormItem>
-                  <label>Use</label>
+                <GoAFormItem label="Use">
                   <div>{use}</div>
                 </GoAFormItem>
               </div>
@@ -113,7 +101,7 @@ export const Details: FunctionComponent<DetailsProps> = ({ form }) => {
               ))}
             </ul>
           </section>
-        </GoAForm>
+        </form>
       )}
     </section>
   );

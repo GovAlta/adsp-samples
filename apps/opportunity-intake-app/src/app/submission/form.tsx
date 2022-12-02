@@ -1,4 +1,3 @@
-import { GoAForm, GoAFormActions } from '@abgov/react-components/experimental';
 import { push } from 'connected-react-router';
 import { FunctionComponent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -35,7 +34,7 @@ export const Form: FunctionComponent = () => {
   );
 
   return (
-    <GoAForm>
+    <form>
       <GeneralSection
         value={localData}
         onUpdate={(update) => {
@@ -54,7 +53,7 @@ export const Form: FunctionComponent = () => {
 
       <DocumentsSection formId={id} files={files} />
 
-      <GoAFormActions alignment="right">
+      <div>
         <ActionButton
           disabled={
             !(localData.ministry && localData.program && localData.description)
@@ -71,7 +70,7 @@ export const Form: FunctionComponent = () => {
         >
           Next
         </ActionButton>
-      </GoAFormActions>
-    </GoAForm>
+      </div>
+    </form>
   );
 };

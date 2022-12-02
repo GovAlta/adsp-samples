@@ -1,13 +1,4 @@
-import {
-  GoAButton,
-  GoACallout,
-  GoAElementLoader,
-} from '@abgov/react-components';
-import {
-  GoAForm,
-  GoAFormActions,
-  GoAFormItem,
-} from '@abgov/react-components/experimental';
+import { GoACallout, GoAFormItem } from '@abgov/react-components';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
@@ -44,10 +35,9 @@ export const Verify = () => {
   }, [formId, dispatch]);
 
   return (
-    <GoAForm>
+    <form>
       <p>Let's get your back to where you were</p>
-      <GoAFormItem>
-        <label>Enter code from the email or text message.</label>
+      <GoAFormItem label="Enter code from the email or text message.">
         <input
           type="text"
           value={code}
@@ -56,7 +46,7 @@ export const Verify = () => {
           }}
         />
       </GoAFormItem>
-      <GoAFormActions alignment="right">
+      <div>
         <ActionButton
           buttonType="secondary"
           isExecuting={isSending}
@@ -71,14 +61,14 @@ export const Verify = () => {
         >
           Verify
         </ActionButton>
-      </GoAFormActions>
+      </div>
       {verifyError && (
         <GoACallout
           type="emergency"
-          title="Access not verified"
-          content="The provided code could not be verified. Please try again."
+          heading="Access not verified"
+          children="The provided code could not be verified. Please try again."
         />
       )}
-    </GoAForm>
+    </form>
   );
 };

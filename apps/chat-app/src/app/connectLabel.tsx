@@ -1,4 +1,4 @@
-import { GoABadge } from '@abgov/react-components/experimental';
+import { GoABadge } from '@abgov/react-components';
 import { FunctionComponent } from 'react';
 import { useSelector } from 'react-redux';
 import { ChatState } from './chat.slice';

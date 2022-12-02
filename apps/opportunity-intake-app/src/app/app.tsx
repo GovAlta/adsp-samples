@@ -1,4 +1,8 @@
-import { GoAButton, GoAHeader } from '@abgov/react-components';
+import {
+  GoAButton,
+  GoAAppHeader,
+  GoAMicrositeHeader,
+} from '@abgov/react-components';
 import { UserManager } from 'oidc-client';
 import { FunctionComponent } from 'react';
 import { useSelector } from 'react-redux';
@@ -24,11 +28,8 @@ export const App: FunctionComponent<AppProps> = ({ userManager }) => {
         location.pathname !== '/' ? styles.opportunityApp : ''
       }`}
     >
-      <GoAHeader
-        serviceLevel="alpha"
-        serviceName="Platform Opportunities"
-        serviceHome="/"
-      >
+      <GoAMicrositeHeader type="beta" />
+      <GoAAppHeader heading="Platform Opportunities" url="/">
         {location.pathname.startsWith('/admin') &&
           (user ? (
             <GoAButton onClick={() => userManager.signoutRedirect()}>
@@ -39,7 +40,7 @@ export const App: FunctionComponent<AppProps> = ({ userManager }) => {
               Sign In
             </GoAButton>
           ))}
-      </GoAHeader>
+      </GoAAppHeader>
       <Route exact path="/">
         <Landing />
       </Route>

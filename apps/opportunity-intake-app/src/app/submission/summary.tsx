@@ -1,5 +1,4 @@
 import { GoAButton } from '@abgov/react-components';
-import { GoAForm, GoAFormActions } from '@abgov/react-components/experimental';
 import { push } from 'connected-react-router';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -37,7 +36,7 @@ export const Summary = () => {
   );
 
   return (
-    <GoAForm>
+    <form>
       <GeneralSection
         showSummary={true}
         value={localData}
@@ -58,11 +57,8 @@ export const Summary = () => {
 
       <DocumentsSection formId={id} showSummary={true} files={files} />
 
-      <GoAFormActions alignment="right">
-        <GoAButton
-          buttonType="secondary"
-          onClick={() => dispatch(push('form'))}
-        >
+      <div>
+        <GoAButton type="secondary" onClick={() => dispatch(push('form'))}>
           Back
         </GoAButton>
         <ActionButton
@@ -74,7 +70,7 @@ export const Summary = () => {
         >
           Submit
         </ActionButton>
-      </GoAFormActions>
-    </GoAForm>
+      </div>
+    </form>
   );
 };
