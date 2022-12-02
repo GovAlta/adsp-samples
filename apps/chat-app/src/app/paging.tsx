@@ -7,6 +7,7 @@ import {
 } from './chat.slice';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './paging.module.scss';
+import { AppDispatch } from '../main';
 
 interface PagingProps {
   room: Room;
@@ -17,7 +18,7 @@ export const Paging: FunctionComponent<PagingProps> = ({ room }) => {
     (state: { chat: ChatState }) =>
       state.chat.loadingStatus['messages'] === 'loading'
   );
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   return (
     <div className={styles.paging}>

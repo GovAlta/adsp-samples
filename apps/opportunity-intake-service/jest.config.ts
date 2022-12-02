@@ -1,4 +1,5 @@
-module.exports = {
+/* eslint-disable */
+export default {
   displayName: 'opportunity-intake-service',
   preset: '../../jest.preset.js',
   globals: {

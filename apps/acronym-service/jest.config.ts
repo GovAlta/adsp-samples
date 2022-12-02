@@ -1,5 +1,6 @@
-module.exports = {
-  displayName: 'chat-service',
+/* eslint-disable */
+export default {
+  displayName: 'acronym-service',
   preset: '../../jest.preset.js',
   globals: {
     'ts-jest': {
@@ -11,5 +12,5 @@ module.exports = {
     '^.+\\.[tj]s$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../coverage/apps/chat-service',
+  coverageDirectory: '../../coverage/apps/acronym-service',
 };

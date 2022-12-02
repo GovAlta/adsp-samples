@@ -2,7 +2,7 @@ import {
   AdspId,
   ServiceDirectory,
   TokenProvider,
-} from '@govalta/adsp-service-sdk';
+} from '@abgov/adsp-service-sdk';
 import { Storage } from 'botbuilder';
 import { Application } from 'express';
 import { Logger } from 'winston';

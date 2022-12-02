@@ -2,6 +2,7 @@ import { GoABadge, GoAIconButton } from '@abgov/react-components/experimental';
 import { DateTime } from 'luxon';
 import { FunctionComponent, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../../main';
 import { getSubmissionDetails } from '../assess.slice';
 import { FormInfo } from '../types';
 import { Details } from './details';
@@ -14,7 +15,7 @@ export const Submission: FunctionComponent<SubmissionItemProps> = ({
 }) => {
   const { id, created, submitted, applicant, status } = form;
   const [showDetails, setShowDetails] = useState(false);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   return (
     <>

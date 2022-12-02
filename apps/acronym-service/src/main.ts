@@ -4,7 +4,7 @@ import {
   GoAError,
   initializeService,
   ServiceMetricsValueDefinition,
-} from '@govalta/adsp-service-sdk';
+} from '@abgov/adsp-service-sdk';
 import axios from 'axios';
 import * as compression from 'compression';
 import * as cors from 'cors';

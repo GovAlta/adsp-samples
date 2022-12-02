@@ -6,7 +6,7 @@ import {
   isAllowedUser,
   ServiceDirectory,
   TokenProvider,
-} from '@govalta/adsp-service-sdk';
+} from '@abgov/adsp-service-sdk';
 import axios from 'axios';
 import { RequestHandler, Router } from 'express';
 import * as hasha from 'hasha';
@@ -24,7 +24,9 @@ export const getRooms: RequestHandler = async (req, res, next) => {
   try {
     const [rooms] = await req.getConfiguration<Record<string, Room>>();
 
-    return res.send(Object.values(rooms));
+    return res.send(
+      Object.entries(rooms).map(([key, room]) => ({ ...room, id: key }))
+    );
   } catch (err) {
     next(err);
   }

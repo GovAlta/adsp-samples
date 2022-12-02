@@ -468,7 +468,7 @@ export const roomListSelector = createSelector(
     state[CHAT_FEATURE_KEY].roomList,
   (state: { [CHAT_FEATURE_KEY]: ChatState }) => state[CHAT_FEATURE_KEY].rooms,
   (list, rooms) =>
-    list.map((room) => rooms[room]).sort((a, b) => a.name.localeCompare(b.name))
+    list.map((room) => rooms[room]).sort((a, b) => a.name?.localeCompare(b?.name))
 );
 
 export const selectedRoomSelector = createSelector(

@@ -35,11 +35,14 @@ const initialIntakeState: IntakeState = {
 
 export const createForm = createAsyncThunk(
   'intake/createForm',
-  async ({ email, name }: { email: string; name: string }, { dispatch }) => {
+  async (
+    { email, phone, name }: { email: string; phone: string; name: string },
+    { dispatch }
+  ) => {
     const response = await fetch('/api/v1/opportunities', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, name }),
+      body: JSON.stringify({ email, phone, name }),
     });
 
     const form: FormInfo = await response.json();

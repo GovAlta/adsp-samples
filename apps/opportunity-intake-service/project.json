@@ -1,27 +1,30 @@
 {
-  "root": "apps/opportunity-intake-service",
+  "name": "opportunity-intake-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/opportunity-intake-service/src",
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nrwl/node:build",
+      "executor": "@nrwl/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/opportunity-intake-service",
         "main": "apps/opportunity-intake-service/src/main.ts",
         "tsConfig": "apps/opportunity-intake-service/tsconfig.app.json",
-        "assets": ["apps/opportunity-intake-service/src/assets"]
+        "assets": ["apps/opportunity-intake-service/src/assets"],
+        "target": "node",
+        "compiler": "tsc"
       },
       "configurations": {
         "production": {
           "optimization": true,
           "extractLicenses": true,
-          "inspect": false          
+          "inspect": false
         }
       }
     },
     "serve": {
-      "executor": "@nrwl/node:execute",
+      "executor": "@nrwl/node:node",
       "options": {
         "buildTarget": "opportunity-intake-service:build"
       }
@@ -35,9 +38,9 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/opportunity-intake-service"],
+      "outputs": ["{workspaceRoot}/coverage/apps/opportunity-intake-service"],
       "options": {
-        "jestConfig": "apps/opportunity-intake-service/jest.config.js",
+        "jestConfig": "apps/opportunity-intake-service/jest.config.ts",
         "passWithNoTests": true
       }
     },

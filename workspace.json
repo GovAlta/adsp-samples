@@ -5,11 +5,9 @@
     "chat-app": "apps/chat-app",
     "chat-app-e2e": "apps/chat-app-e2e",
     "chat-service": "apps/chat-service",
-    "lto-property-tax-app": "apps/lto-property-tax-app",
-    "lto-property-tax-app-e2e": "apps/lto-property-tax-app-e2e",
-    "lto-property-tax-service": "apps/lto-property-tax-service",
     "opportunity-intake-app": "apps/opportunity-intake-app",
     "opportunity-intake-app-e2e": "apps/opportunity-intake-app-e2e",
     "opportunity-intake-service": "apps/opportunity-intake-service"
-  }
+  },
+  "$schema": "./node_modules/nx/schemas/workspace-schema.json"
 }

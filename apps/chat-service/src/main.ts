@@ -3,7 +3,7 @@ import {
   GoAError,
   initializeService,
   ServiceMetricsValueDefinition,
-} from '@govalta/adsp-service-sdk';
+} from '@abgov/adsp-service-sdk';
 import * as compression from 'compression';
 import * as cors from 'cors';
 import * as express from 'express';
@@ -59,6 +59,7 @@ async function initializeApp(): Promise<express.Application> {
             name: { type: 'string' },
             description: { type: 'string' },
           },
+          required: ['id', 'name'],
         },
       },
       events: [MessageSentEventDefinition],

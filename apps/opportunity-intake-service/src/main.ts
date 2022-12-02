@@ -7,7 +7,8 @@ import {
   AdspId,
   GoAError,
   initializeService,
-} from '@govalta/adsp-service-sdk';
+  ServiceMetricsValueDefinition,
+} from '@abgov/adsp-service-sdk';
 import axios from 'axios';
 import * as compression from 'compression';
 import * as expressRedis from 'connect-redis';
@@ -70,58 +71,64 @@ async function initializeApp(): Promise<express.Application> {
   }
 
   const serviceId = AdspId.parse(environment.CLIENT_ID);
-  const { directory, healthCheck, tenantStrategy, tokenProvider } =
-    await initializeService(
-      {
-        displayName: 'Opportunity intake service',
-        description: 'Service for intake of platform opportunities.',
-        realm: environment.TENANT_REALM,
-        serviceId,
-        clientSecret: environment.CLIENT_SECRET,
-        accessServiceUrl: new URL(environment.ACCESS_SERVICE_URL),
-        directoryUrl: new URL(environment.DIRECTORY_SERVICE_URL),
-        configurationSchema: {
+  const {
+    directory,
+    healthCheck,
+    metricsHandler,
+    tenantStrategy,
+    tokenProvider,
+  } = await initializeService(
+    {
+      displayName: 'Opportunity intake service',
+      description: 'Service for intake of platform opportunities.',
+      realm: environment.TENANT_REALM,
+      serviceId,
+      clientSecret: environment.CLIENT_SECRET,
+      accessServiceUrl: new URL(environment.ACCESS_SERVICE_URL),
+      directoryUrl: new URL(environment.DIRECTORY_SERVICE_URL),
+      configurationSchema: {
+        type: 'object',
+        additionalProperties: {
           type: 'object',
-          additionalProperties: {
-            type: 'object',
-            properties: {
-              id: { type: 'string' },
-              name: { type: 'string' },
-              description: { type: 'string' },
+          properties: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+            description: { type: 'string' },
+          },
+        },
+      },
+      fileTypes: [
+        {
+          id: 'opportunity-supporting-files',
+          name: 'Opportunity supporting files',
+          anonymousRead: false,
+          readRoles: [
+            `${serviceId}:${ServiceRoles.OpportunityAdmin}`,
+            'urn:ads:platform:form-service:intake-application',
+          ],
+          updateRoles: ['urn:ads:platform:form-service:intake-application'],
+        },
+      ],
+      values: [ServiceMetricsValueDefinition],
+      serviceConfigurations: [
+        {
+          serviceId: adspId`urn:ads:platform:form-service`,
+          configuration: {
+            'opportunity-intake': {
+              id: 'opportunity-intake',
+              anonymousApply: true,
+              name: 'Opportunity intake',
+              description: 'Submissions of platform opportunities.',
+              applicantRoles: [],
+              formDraftUrlTemplate: `${environment.SERVICE_URL}/submission/{{ id }}`,
+              assessorRoles: [`${serviceId}:opportunity-admin`],
             },
           },
         },
-        fileTypes: [
-          {
-            id: 'opportunity-supporting-files',
-            name: 'Opportunity supporting files',
-            anonymousRead: false,
-            readRoles: [
-              `${serviceId}:${ServiceRoles.OpportunityAdmin}`,
-              'urn:ads:platform:form-service:intake-application',
-            ],
-            updateRoles: ['urn:ads:platform:form-service:intake-application'],
-          },
-        ],
-        serviceConfigurations: [
-          {
-            serviceId: adspId`urn:ads:platform:form-service`,
-            configuration: {
-              'opportunity-intake': {
-                id: 'opportunity-intake',
-                anonymousApply: true,
-                name: 'Opportunity intake',
-                description: 'Submissions of platform opportunities.',
-                applicantRoles: [],
-                formDraftUrlTemplate: `${environment.SERVICE_URL}/submission/{{ id }}`,
-                assessorRoles: [`${serviceId}:opportunity-admin`],
-              },
-            },
-          },
-        ],
-      },
-      { logLevel: environment.LOG_LEVEL }
-    );
+      ],
+    },
+    { logLevel: environment.LOG_LEVEL }
+  );
 
   passport.use('tenant', tenantStrategy);
 

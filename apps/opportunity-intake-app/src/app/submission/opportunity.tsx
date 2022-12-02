@@ -12,6 +12,7 @@ import {
 import { Verify } from './verify';
 import { Draft } from './draft';
 import { NotFound } from './notFound';
+import { AppDispatch } from '../../main';
 
 export const Opportunity: FunctionComponent = () => {
   const { form, formData } = useSelector(
@@ -27,7 +28,7 @@ export const Opportunity: FunctionComponent = () => {
       state[INTAKE_FEATURE_KEY].loadingFormStatus === 'loading' ||
       state[INTAKE_FEATURE_KEY].loadingFormStatus === 'not loaded'
   );
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { formId } = useParams<{ formId: string }>();
 
   useEffect(() => {

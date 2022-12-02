@@ -6,6 +6,7 @@ import {
 } from '@abgov/react-components/experimental';
 import { FunctionComponent } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch } from '../../main';
 import { AssessState, ASSESS_FEATURE_KEY, downloadFile } from '../assess.slice';
 import { FormInfo } from '../types';
 import styles from './submissions.module.scss';
@@ -25,7 +26,7 @@ const FileItem: FunctionComponent<FileItemProps> = ({ fileId }) => {
         state[ASSESS_FEATURE_KEY].loadingFileStatus[fileId] === 'loading',
     })
   );
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   return (
     <li>

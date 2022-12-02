@@ -6,10 +6,11 @@ import { Messages } from './messages';
 import { Paging } from './paging';
 import { RoomLabel } from './roomLabel';
 import { useEffect } from 'react';
+import { AppDispatch } from '../main';
 
 export const Room = () => {
   const room = useSelector(selectedRoomSelector);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
     if (room && !room.set?.messagesLoaded) {

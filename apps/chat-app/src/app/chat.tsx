@@ -1,6 +1,7 @@
 import { FunctionComponent, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { UserState } from 'redux-oidc';
+import { AppDispatch } from '../main';
 import styles from './chat.module.scss';
 import { ChatState, connectStream, fetchRooms } from './chat.slice';
 import { ConnectLabel } from './connectLabel';
@@ -10,7 +11,7 @@ import { Rooms } from './rooms';
 export const Chat: FunctionComponent = () => {
   const user = useSelector((state: { user: UserState }) => state.user.user);
   const error = useSelector((state: { chat: ChatState }) => state.chat.error);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
     if (user?.access_token) {

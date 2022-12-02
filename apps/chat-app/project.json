@@ -1,10 +1,11 @@
 {
-  "root": "apps/chat-app",
+  "name": "chat-app",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/chat-app/src",
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nrwl/web:webpack",
+      "executor": "@nrwl/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
@@ -36,11 +37,17 @@
           "namedChunks": false,
           "extractLicenses": true,
           "vendorChunk": false
+        },
+        "development": {
+          "extractLicenses": false,
+          "optimization": false,
+          "sourceMap": true,
+          "vendorChunk": true
         }
       }
     },
     "serve": {
-      "executor": "@nrwl/web:dev-server",
+      "executor": "@nrwl/webpack:dev-server",
       "options": {
         "buildTarget": "chat-app:build",
         "hmr": true,
@@ -50,8 +57,12 @@
         "production": {
           "buildTarget": "chat-app:build:production",
           "hmr": false
+        },
+        "development": {
+          "buildTarget": "chat-app:build:development"
         }
-      }
+      },
+      "defaultConfiguration": "development"
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
@@ -62,9 +73,9 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/chat-app"],
+      "outputs": ["{workspaceRoot}/coverage/apps/chat-app"],
       "options": {
-        "jestConfig": "apps/chat-app/jest.config.js",
+        "jestConfig": "apps/chat-app/jest.config.ts",
         "passWithNoTests": true
       }
     },

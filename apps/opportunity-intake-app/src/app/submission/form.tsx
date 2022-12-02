@@ -3,6 +3,7 @@ import { push } from 'connected-react-router';
 import { FunctionComponent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useDebouncedCallback } from 'use-debounce';
+import { AppDispatch } from '../../main';
 import { ActionButton } from '../components/actionButton';
 import {
   IntakeState,
@@ -27,7 +28,7 @@ export const Form: FunctionComponent = () => {
 
   const [localData, setLocalData] = useState(data);
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const dispatchUpdate = useDebouncedCallback(
     (formData: OpportunityForm) => dispatch(updateFormData({ formData })),
     2000

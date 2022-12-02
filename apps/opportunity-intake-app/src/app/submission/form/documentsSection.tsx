@@ -2,6 +2,7 @@ import { GoAButton, GoAElementLoader } from '@abgov/react-components';
 import { GoAIconButton } from '@abgov/react-components/experimental';
 import { FunctionComponent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch } from '../../../main';
 import { ActionButton } from '../../components/actionButton';
 import {
   deleteFormFile,
@@ -35,7 +36,7 @@ const FileItem: FunctionComponent<FileItemProps> = ({
         state[INTAKE_FEATURE_KEY].loadingFileStatus[fileId] === 'loading',
     })
   );
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   return (
     <li>
       {!isLoading ? (
@@ -71,7 +72,7 @@ export const DocumentsSection: FunctionComponent<DocumentsSectionProps> = ({
   );
   const [showReadOnly, setShowReadOnly] = useState(showSummary);
   const [selectedFile, setSelectedFile] = useState<File>();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   return (
     <section className={styles.section}>
       <div className={styles.heading}>

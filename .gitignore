@@ -39,3 +39,7 @@ testem.log
 Thumbs.db
 
 .env
+apps/*/bin
+apps/*/obj
+libs/*/bin
+libs/*/obj

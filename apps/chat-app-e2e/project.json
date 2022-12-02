@@ -1,5 +1,6 @@
 {
-  "root": "apps/chat-app-e2e",
+  "name": "chat-app-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/chat-app-e2e/src",
   "projectType": "application",
   "targets": {

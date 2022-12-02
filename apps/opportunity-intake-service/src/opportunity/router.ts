@@ -4,7 +4,7 @@ import {
   GoAError,
   ServiceDirectory,
   TokenProvider,
-} from '@govalta/adsp-service-sdk';
+} from '@abgov/adsp-service-sdk';
 import axios from 'axios';
 import { RequestHandler, Router } from 'express';
 import * as proxy from 'express-http-proxy';
@@ -39,7 +39,7 @@ export function createDraft(
 ): RequestHandler {
   return async (req, _res, next) => {
     try {
-      const { name, email } = req.body;
+      const { name, email, phone } = req.body;
 
       const formServiceUrl = await directory.getServiceUrl(
         adspId`urn:ads:platform:form-service`
@@ -52,11 +52,19 @@ export function createDraft(
           applicant: {
             addressAs: name,
             channels: [
-              {
-                channel: 'email',
-                address: email,
-              },
-            ],
+              email
+                ? {
+                    channel: 'email',
+                    address: email,
+                  }
+                : null,
+              phone
+                ? {
+                    channel: 'sms',
+                    address: phone,
+                  }
+                : null,
+            ].filter((channel) => channel),
           },
         },
         {
