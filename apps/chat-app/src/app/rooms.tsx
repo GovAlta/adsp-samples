@@ -1,5 +1,6 @@
 import { FunctionComponent } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch } from '../main';
 import {
   ChatState,
   isAdminSelector,
@@ -15,7 +16,7 @@ export const Rooms: FunctionComponent = () => {
     (state: { chat: ChatState }) => state.chat.selectedRoom
   );
   const isAdmin = useSelector(isAdminSelector);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   return (
     <ul className={styles.rooms}>
       {rooms.map((room) => (

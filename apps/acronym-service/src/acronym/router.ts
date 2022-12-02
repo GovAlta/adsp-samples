@@ -5,7 +5,7 @@ import {
   ServiceDirectory,
   TokenProvider,
   UnauthorizedUserError,
-} from '@govalta/adsp-service-sdk';
+} from '@abgov/adsp-service-sdk';
 import axios from 'axios';
 import { RequestHandler, Router } from 'express';
 import { body, param, validationResult } from 'express-validator';

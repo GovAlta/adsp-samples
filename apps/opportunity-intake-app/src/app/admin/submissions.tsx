@@ -1,6 +1,7 @@
 import { GoAPageLoader } from '@abgov/react-components';
 import { FunctionComponent, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch } from '../../main';
 import {
   AssessState,
   ASSESS_FEATURE_KEY,
@@ -20,7 +21,7 @@ const SubmissionList: FunctionComponent = () => {
       isLoading: state[ASSESS_FEATURE_KEY].loadingStatus === 'loading',
     })
   );
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   return (
     <table>
@@ -66,7 +67,7 @@ const SubmissionList: FunctionComponent = () => {
 };
 
 export const Submissions: FunctionComponent = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   useEffect(() => {
     dispatch(getSubmissions({}));
   });

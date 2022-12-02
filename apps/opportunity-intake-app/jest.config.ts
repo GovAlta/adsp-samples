@@ -1,5 +1,6 @@
-module.exports = {
-  displayName: 'lto-property-tax-app',
+/* eslint-disable */
+export default {
+  displayName: 'opportunity-intake-app',
   preset: '../../jest.preset.js',
   globals: {
     'ts-jest': {
@@ -11,5 +12,5 @@ module.exports = {
     '^.+\\.[tj]sx?$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-  coverageDirectory: '../../coverage/apps/lto-property-tax-app',
+  coverageDirectory: '../../coverage/apps/opportunity-intake-app',
 };

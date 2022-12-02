@@ -3,7 +3,7 @@ import {
   adspId,
   ServiceDirectory,
   TokenProvider,
-} from '@govalta/adsp-service-sdk';
+} from '@abgov/adsp-service-sdk';
 import { io } from 'socket.io-client';
 import { Logger } from 'winston';
 

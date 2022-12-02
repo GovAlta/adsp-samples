@@ -3,13 +3,14 @@ import {
 } from '@abgov/react-components/experimental';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../main';
 import { setRoom } from './chat.slice';
 import styles from './rooms.module.scss';
 
 export const NewRoom = () => {
   const [showAdd, setShowAdd] = useState(false);
   const [name, setName] = useState('');
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   return (
     <li className={styles.addRoom}>

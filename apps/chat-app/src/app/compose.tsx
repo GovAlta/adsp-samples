@@ -1,6 +1,7 @@
 import { GoAButton } from '@abgov/react-components';
 import { FunctionComponent, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../main';
 import { MessageContent, sendMessage } from './chat.slice';
 import styles from './compose.module.scss';
 
@@ -31,7 +32,7 @@ interface ComposeProps {
 
 export const Compose: FunctionComponent<ComposeProps> = ({ roomId }) => {
   const [draft, setDraft] = useState<MessageContent>(['']);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   return (
     <div className={styles.compose}>
       <div className={styles.composeContent}>

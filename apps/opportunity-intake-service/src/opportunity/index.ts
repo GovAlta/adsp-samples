@@ -1,4 +1,4 @@
-import { User } from '@govalta/adsp-service-sdk';
+import { User } from '@abgov/adsp-service-sdk';
 import { Application } from 'express';
 import { createOpportunityRouter, RouterProps } from './router';
 import { codeStrategy, creatorStrategy } from './strategy';

@@ -2,7 +2,7 @@ import {
   DomainEvent,
   DomainEventDefinition,
   User,
-} from '@govalta/adsp-service-sdk';
+} from '@abgov/adsp-service-sdk';
 import * as hasha from 'hasha';
 
 export const MessageSentEventDefinition: DomainEventDefinition = {

@@ -3,7 +3,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { User, UserManager } from 'oidc-client';
 import decodeJwt from 'jwt-decode';
 import React, { FunctionComponent } from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import { Provider, useSelector } from 'react-redux';
 import {
   Action,
@@ -62,6 +62,7 @@ const store = configureStore({
 });
 
 store.dispatch(getConfiguration());
+export type AppDispatch = typeof store.dispatch;
 
 const Main: FunctionComponent = () => {
   const { accessServiceUrl, clientId, realm } = useSelector(
@@ -118,9 +119,11 @@ const Main: FunctionComponent = () => {
   );
 };
 
-ReactDOM.render(
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement
+);
+root.render(
   <Provider store={store}>
     <Main />
-  </Provider>,
-  document.getElementById('root')
+  </Provider>
 );

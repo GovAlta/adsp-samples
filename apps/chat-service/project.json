@@ -1,17 +1,20 @@
 {
-  "root": "apps/chat-service",
+  "name": "chat-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/chat-service/src",
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nrwl/node:build",
+      "executor": "@nrwl/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/chat-service",
         "main": "apps/chat-service/src/main.ts",
         "tsConfig": "apps/chat-service/tsconfig.app.json",
         "assets": ["apps/chat-service/src/assets"],
-        "webpackConfig": "apps/chat-service/webpack.config.js"
+        "webpackConfig": "apps/chat-service/webpack.config.js",
+        "target": "node",
+        "compiler": "tsc"
       },
       "configurations": {
         "production": {
@@ -22,7 +25,7 @@
       }
     },
     "serve": {
-      "executor": "@nrwl/node:execute",
+      "executor": "@nrwl/node:node",
       "options": {
         "buildTarget": "chat-service:build"
       }
@@ -36,9 +39,9 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/chat-service"],
+      "outputs": ["{workspaceRoot}/coverage/apps/chat-service"],
       "options": {
-        "jestConfig": "apps/chat-service/jest.config.js",
+        "jestConfig": "apps/chat-service/jest.config.ts",
         "passWithNoTests": true
       }
     },

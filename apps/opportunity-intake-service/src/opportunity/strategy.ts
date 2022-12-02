@@ -2,7 +2,7 @@ import {
   adspId,
   ServiceDirectory,
   TokenProvider,
-} from '@govalta/adsp-service-sdk';
+} from '@abgov/adsp-service-sdk';
 import axios from 'axios';
 import { Strategy } from 'passport';
 import { Strategy as CustomStrategy } from 'passport-custom';

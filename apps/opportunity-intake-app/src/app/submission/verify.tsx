@@ -11,6 +11,7 @@ import {
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
+import { AppDispatch } from '../../main';
 import { ActionButton } from '../components/actionButton';
 import {
   getFormData,
@@ -34,7 +35,7 @@ export const Verify = () => {
   );
 
   const [code, setCode] = useState('');
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
     if (formId) {
@@ -46,7 +47,7 @@ export const Verify = () => {
     <GoAForm>
       <p>Let's get your back to where you were</p>
       <GoAFormItem>
-        <label>Enter code from the email</label>
+        <label>Enter code from the email or text message.</label>
         <input
           type="text"
           value={code}

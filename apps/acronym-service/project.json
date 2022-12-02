@@ -1,15 +1,18 @@
 {
-  "root": "apps/acronym-service",
+  "name": "acronym-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/acronym-service/src",
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nrwl/node:build",
+      "executor": "@nrwl/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/acronym-service",
         "main": "apps/acronym-service/src/main.ts",
-        "tsConfig": "apps/acronym-service/tsconfig.app.json"        
+        "tsConfig": "apps/acronym-service/tsconfig.app.json",
+        "target": "node",
+        "compiler": "tsc"
       },
       "configurations": {
         "production": {
@@ -20,7 +23,7 @@
       }
     },
     "serve": {
-      "executor": "@nrwl/node:execute",
+      "executor": "@nrwl/node:node",
       "options": {
         "buildTarget": "acronym-service:build"
       }
@@ -34,9 +37,9 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/acronym-service"],
+      "outputs": ["{workspaceRoot}/coverage/apps/acronym-service"],
       "options": {
-        "jestConfig": "apps/acronym-service/jest.config.js",
+        "jestConfig": "apps/acronym-service/jest.config.ts",
         "passWithNoTests": true
       }
     },

@@ -1,5 +1,6 @@
-module.exports = {
-  displayName: 'opportunity-intake-app',
+/* eslint-disable */
+export default {
+  displayName: 'chat-app',
   preset: '../../jest.preset.js',
   globals: {
     'ts-jest': {
@@ -11,5 +12,5 @@ module.exports = {
     '^.+\\.[tj]sx?$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-  coverageDirectory: '../../coverage/apps/opportunity-intake-app',
+  coverageDirectory: '../../coverage/apps/chat-app',
 };

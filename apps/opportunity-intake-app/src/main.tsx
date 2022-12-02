@@ -1,5 +1,5 @@
 import { GoAPageLoader } from '@abgov/react-components';
-import { configureStore } from '@reduxjs/toolkit';
+import { AnyAction, configureStore } from '@reduxjs/toolkit';
 import {
   ConnectedRouter,
   connectRouter,
@@ -9,7 +9,7 @@ import {
 import { createBrowserHistory } from 'history';
 import { UserManager } from 'oidc-client';
 import React, { FunctionComponent } from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import {
   CallbackComponent,
   loadUser,
@@ -41,15 +41,12 @@ const store = configureStore({
     [ASSESS_FEATURE_KEY]: assessReducer,
   },
   middleware: (getDefaultMiddleware) => {
-    return [
-      ...getDefaultMiddleware({
-        serializableCheck: {
-          ignoredActions: ['redux-oidc/USER_FOUND'],
-          ignoredPaths: ['user.user'],
-        },
-      }),
-      routerMiddleware(history),
-    ];
+    return getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ['redux-oidc/USER_FOUND'],
+        ignoredPaths: ['user.user'],
+      },
+    }).concat(routerMiddleware(history));
   },
   devTools: true,
   // Optional Redux store enhancers
@@ -57,6 +54,7 @@ const store = configureStore({
 });
 
 store.dispatch(getConfiguration());
+export type AppDispatch = typeof store.dispatch;
 
 const Main: FunctionComponent = () => {
   const { accessServiceUrl } = useSelector(
@@ -73,7 +71,7 @@ const Main: FunctionComponent = () => {
     loadUser(store, userManager);
   }
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   return userManager ? (
     <OidcProvider store={store} userManager={userManager}>
@@ -115,9 +113,11 @@ const Main: FunctionComponent = () => {
     <GoAPageLoader />
   );
 };
-ReactDOM.render(
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement
+);
+root.render(
   <Provider store={store}>
     <Main />
-  </Provider>,
-  document.getElementById('root')
+  </Provider>
 );

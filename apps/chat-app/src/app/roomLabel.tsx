@@ -1,6 +1,7 @@
 import { GoAIconButton } from '@abgov/react-components/experimental';
 import { FunctionComponent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch } from '../main';
 import { isAdminSelector, Room, setRoom } from './chat.slice';
 import styles from './roomLabel.module.scss';
 
@@ -12,7 +13,7 @@ export const RoomLabel: FunctionComponent<RoomLabelProps> = ({ room }) => {
   const isAdmin = useSelector(isAdminSelector);
   const [edit, setEdit] = useState(false);
   const [description, setDescription] = useState(room.description);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   return room ? (
     <div className={styles.roomLabel}>

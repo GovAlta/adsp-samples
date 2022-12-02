@@ -1,5 +1,6 @@
 {
-  "root": "apps/opportunity-intake-app-e2e",
+  "name": "opportunity-intake-app-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/opportunity-intake-app-e2e/src",
   "projectType": "application",
   "targets": {

@@ -6,9 +6,10 @@ import {
 } from '@abgov/react-components/experimental';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../../main';
 
 export const ScreeningQuestions = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   return (
     <GoAForm>
       <h3>Let start with some quick questions</h3>
