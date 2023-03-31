@@ -12,7 +12,10 @@
         "main": "apps/acronym-service/src/main.ts",
         "tsConfig": "apps/acronym-service/tsconfig.app.json",
         "target": "node",
-        "compiler": "tsc"
+        "compiler": "tsc",
+        "webpackConfig": "apps/acronym-service/webpack.config.js",
+        "isolatedConfig": true,
+        "babelUpwardRootMode": true
       },
       "configurations": {
         "production": {

@@ -14,7 +14,9 @@
         "assets": ["apps/chat-service/src/assets"],
         "webpackConfig": "apps/chat-service/webpack.config.js",
         "target": "node",
-        "compiler": "tsc"
+        "compiler": "tsc",
+        "isolatedConfig": true,
+        "babelUpwardRootMode": true
       },
       "configurations": {
         "production": {

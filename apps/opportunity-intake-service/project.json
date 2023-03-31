@@ -13,7 +13,10 @@
         "tsConfig": "apps/opportunity-intake-service/tsconfig.app.json",
         "assets": ["apps/opportunity-intake-service/src/assets"],
         "target": "node",
-        "compiler": "tsc"
+        "compiler": "tsc",
+        "webpackConfig": "apps/opportunity-intake-service/webpack.config.js",
+        "isolatedConfig": true,
+        "babelUpwardRootMode": true
       },
       "configurations": {
         "production": {
