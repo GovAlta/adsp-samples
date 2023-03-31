@@ -27,7 +27,9 @@
         ],
         "styles": [],
         "scripts": [],
-        "webpackConfig": "apps/chat-app/webpack.conf.js"
+        "webpackConfig": "apps/chat-app/webpack.conf.js",
+        "babelUpwardRootMode": true,
+        "isolatedConfig": true
       },
       "configurations": {
         "production": {

@@ -27,7 +27,9 @@
         ],
         "styles": [],
         "scripts": [],
-        "webpackConfig": "apps/opportunity-intake-app/webpack.conf.js"
+        "webpackConfig": "apps/opportunity-intake-app/webpack.conf.js",
+        "babelUpwardRootMode": true,
+        "isolatedConfig": true
       },
       "configurations": {
         "production": {
