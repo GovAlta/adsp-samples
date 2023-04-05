@@ -1,5 +1,4 @@
 import {
-  createAction,
   createAsyncThunk,
   createReducer,
   createSelector,

@@ -9,7 +9,6 @@ import {
 } from '@abgov/react-components';
 
 import styles from './app.module.css';
-import { publicResourceSelector, privateResourceSelector } from './start.slice';
 import { Route, Switch } from 'react-router-dom';
 import { AnnualAgreement } from './annual-agreement/annual-agreement';
 import { Agreements } from './agreements/agreements';
@@ -20,8 +19,6 @@ interface AppProps {
 
 export function App({ userManager }: AppProps) {
   const user = useSelector((state: { user: UserState }) => state.user.user);
-  const publicResource = useSelector(publicResourceSelector);
-  const privateResource = useSelector(privateResourceSelector);
 
   return (
     <div className={styles.app}>
