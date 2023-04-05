@@ -1,4 +1,4 @@
-@import "@abgov/web-components/index.css";
+@import '@abgov/web-components/index.css';
 
 body {
   margin: 0;
@@ -6,19 +6,37 @@ body {
 
 main {
   display: grid;
-  grid-template-columns: auto;
+  grid-template-columns: repeat(6, 16vw);
+  grid-template-rows: min-content;
+  min-height: 600px;
+  margin-bottom: 50px;
+}
+
+main > * {
+  grid-column: 2 / span 4;
 }
 
 section {
-  grid-column: 2 / span 2;
-  margin-top: 40px;
-  margin-bottom: 40px;
-  margin-left: 32px;
-  margin-right: 32px;
+  margin-top: 20px;
+  margin-bottom: 10px;
 }
 
 .app {
   margin: 0;
+}
+
+.actionBar {
+  display: flex;
+  margin-top: 20px;
+}
+
+.actionBar > *:first-child {
+  margin-left: auto;
+  margin-right: 16px;
+}
+
+.actionBar > *:first-child:last-child {
+  margin-right: 0;
 }
 
 .nextSteps {
@@ -28,7 +46,7 @@ section {
 .nextSteps li {
   margin-top: 0;
   margin-bottom: 0;
-  line-height: 40px;
+  line-height: 50px;
 }
 
 .nextSteps li button {
