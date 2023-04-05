@@ -1,5 +1,4 @@
 import { GoACircularProgress } from '@abgov/react-components';
-import '@abgov/styles/styles.esm.css';
 import { configureStore } from '@reduxjs/toolkit';
 import {
   ConnectedRouter,
