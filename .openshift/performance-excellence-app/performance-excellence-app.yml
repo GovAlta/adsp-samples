@@ -1,9 +1,9 @@
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
-  name: chat-service
+  name: performance-excellence-app
 labels:
-  app: chat-service
+  app: performance-excellence-app
 parameters:
   - name: INFRA_PROJECT
     description: Project used for build infrastructure.
@@ -17,7 +17,7 @@ parameters:
   - name: APP_NAME
     description: Name of the application.
     displayName: Application Name
-    value: chat-service
+    value: performance-excellence-app
     required: true
   - name: DEPLOY_TAG
     description: Tag of the ImageStream to deploy.
@@ -27,7 +27,7 @@ parameters:
   - name: COMMIT_SHA
     description: SHA of the commit that triggered the deployment.
     displayName: Commit SHA
-    value: ''
+    value: ""
     required: true
 objects:
   - apiVersion: image.openshift.io/v1
@@ -48,7 +48,7 @@ objects:
       output:
         to:
           kind: ImageStreamTag
-          name: '${APP_NAME}:latest'
+          name: "${APP_NAME}:latest"
       runPolicy: Serial
       source:
         binary: {}
@@ -57,8 +57,8 @@ objects:
         dockerStrategy:
           buildArgs:
             - name: PROJECT
-              value: chat-service
-          dockerfilePath: .openshift/chat-service/Dockerfile
+              value: performance-excellence-app
+          dockerfilePath: .openshift/performance-excellence-app/Dockerfile
         type: Docker
       triggers: []
   - apiVersion: v1
@@ -69,25 +69,24 @@ objects:
       name: ${APP_NAME}
       namespace: ${PROJECT}
     data:
-      TENANT_REALM: platform
-      ACCESS_SERVICE_URL: https://access.alberta.ca
-      DIRECTORY_SERVICE_URL: https://tenant-service.adsp.alberta.ca
-  - apiVersion: v1
-    kind: Secret
-    metadata:
-      labels:
-        apply-init: "true"
-      name: ${APP_NAME}
-      namespace: ${PROJECT}
-    stringData:
-      CLIENT_SECRET: ''
+      configuration: |-
+        {
+          "access": {
+            "url": "https://access-uat.alberta.ca",
+            "realm": "16da127a-d0d5-4587-baa7-5c468ede5918",
+            "client_id": "urn:ads:demo:performance-excellence-app"
+          },
+          "directory": {
+            "url": "https://directory-service.adsp-uat.alberta.ca"
+          }
+        }
   - apiVersion: apps.openshift.io/v1
     kind: DeploymentConfig
     metadata:
       name: ${APP_NAME}
       namespace: ${PROJECT}
     spec:
-      replicas: 2
+      replicas: 1
       selector:
         name: ${APP_NAME}
       strategy:
@@ -108,39 +107,34 @@ objects:
         spec:
           containers:
             - name: ${APP_NAME}
-              envFrom:
-                - configMapRef:
-                    name: ${APP_NAME}
-                - secretRef:
-                    name: ${APP_NAME}
-              env:
-                - name: port
-                  value: '3333'
-                - name: LOG_LEVEL
-                  value: info
               imagePullPolicy: IfNotPresent
               ports:
                 - containerPort: 3333
                   name: http
                   protocol: TCP
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 200Mi
-                requests:
-                  cpu: 20m
-                  memory: 50Mi
+              resources: {}
               terminationMessagePath: /dev/termination-log
+              volumeMounts:
+                - mountPath: /opt/app-root/src/config
+                  name: config-volume
           dnsPolicy: ClusterFirst
           restartPolicy: Always
           schedulerName: default-scheduler
+          volumes:
+            - configMap:
+                defaultMode: 420
+                items:
+                  - key: configuration
+                    path: config.json
+                name: ${APP_NAME}
+              name: config-volume
       triggers:
         - imageChangeParams:
             containerNames:
               - ${APP_NAME}
             from:
               kind: ImageStreamTag
-              name: '${APP_NAME}:${DEPLOY_TAG}'
+              name: "${APP_NAME}:${DEPLOY_TAG}"
               namespace: ${INFRA_PROJECT}
           type: ImageChange
   - apiVersion: v1
@@ -151,10 +145,25 @@ objects:
     spec:
       ports:
         - name: http
-          port: 3333
+          port: 8080
           protocol: TCP
-          targetPort: 3333
+          targetPort: 8080
       selector:
         name: ${APP_NAME}
       sessionAffinity: None
       type: ClusterIP
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: ${APP_NAME}
+      namespace: ${PROJECT}
+    spec:
+      port:
+        targetPort: http
+      tls:
+        termination: edge
+      to:
+        kind: Service
+        name: ${APP_NAME}
+        weight: 100
+      wildcardPolicy: None

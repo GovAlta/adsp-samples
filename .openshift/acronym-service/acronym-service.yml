@@ -77,7 +77,7 @@ objects:
         component: database
       name: acronym-redis
     spec:
-      replicas: 1
+      replicas: 0
       selector:
         app: acronym-service
         component: database
@@ -216,7 +216,7 @@ objects:
       name: ${APP_NAME}
       namespace: ${PROJECT}
     spec:
-      replicas: 2
+      replicas: 0
       selector:
         name: ${APP_NAME}
       strategy:

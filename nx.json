@@ -16,8 +16,9 @@
     "@nrwl/react": {
       "application": {
         "style": "styled-components",
-        "unitTestRunner": "jest",
         "linter": "eslint",
+        "bundler": "webpack",
+        "unitTestRunner": "jest",
         "babel": true
       },
       "component": {
@@ -25,8 +26,8 @@
       },
       "library": {
         "style": "styled-components",
-        "unitTestRunner": "jest",
-        "linter": "eslint"
+        "linter": "eslint",
+        "unitTestRunner": "jest"
       }
     }
   },
