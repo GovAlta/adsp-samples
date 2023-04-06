@@ -8,6 +8,7 @@ import {
 import axios from 'axios';
 import { debounce } from 'lodash';
 import { AppState } from '../store';
+import { push } from 'connected-react-router';
 
 export const PA_FEATURE_KEY = 'performance-agreement';
 
@@ -23,14 +24,14 @@ export interface PerformanceAgreementItem {
 export interface PerformanceAgreementEntity {
   id: string;
   status: FormStatus;
-  employeeId: string;
-  firstName: string;
-  lastName: string;
-  department: string;
-  supervisor: string;
-  businessUnit: string;
-  cycleStart?: Date;
-  cycleEnd?: Date;
+  employeeId?: string;
+  firstName?: string;
+  lastName?: string;
+  department?: string;
+  supervisor?: string;
+  businessUnit?: string;
+  cycleStart: Date;
+  cycleEnd: Date;
   performance?: PerformanceAgreementItem[];
   leadership?: PerformanceAgreementItem[];
   development?: PerformanceAgreementItem[];
@@ -68,6 +69,8 @@ export const paAdapter = createEntityAdapter<PerformanceAgreementEntity>();
 interface Form {
   id: string;
   status: FormStatus;
+  submitted: string;
+  data?: Record<string, unknown>;
 }
 interface FormsResult {
   results: Form[];
@@ -95,6 +98,20 @@ export const getPerformanceAgreements = createAsyncThunk(
 
     const agreements: PerformanceAgreementEntity[] = [];
     for (const result of data.results) {
+      if (result.status !== 'draft') {
+        const submitted = new Date(result.submitted);
+        const end = new Date(result.submitted);
+        end.setFullYear(submitted.getFullYear() + 1);
+        agreements.push({
+          id: result.id,
+          status: result.status,
+          cycleStart: submitted,
+          cycleEnd: end,
+        });
+
+        continue;
+      }
+
       const { data } = await axios.get<{ data: Record<string, unknown> }>(
         `${formServiceUrl}/form/v1/forms/${result.id}/data`,
         {
@@ -137,7 +154,7 @@ export const createPerformanceAgreement = createAsyncThunk(
       }
     );
 
-    const { data: updatedData } = await axios.put(
+    const { data: updatedData } = await axios.put<Form>(
       `${formServiceUrl}/form/v1/forms/${data.id}/data`,
       {
         data: {
@@ -159,7 +176,14 @@ export const createPerformanceAgreement = createAsyncThunk(
       }
     );
 
-    return { ...updatedData, id: data.id, status: data.status };
+    const { cycleStart, cycleEnd, ...values } = updatedData.data;
+    return {
+      ...values,
+      id: data.id,
+      status: data.status,
+      cycleStart: new Date(cycleStart as string),
+      cycleEnd: new Date(cycleEnd as string),
+    } as PerformanceAgreementEntity;
   }
 );
 
@@ -192,6 +216,33 @@ export const updatePerformanceAgreement = createAsyncThunk(
   }
 );
 
+export const submitPerformanceAgreement = createAsyncThunk(
+  'agreements/submitPerformanceAgreement',
+  async (entity: PerformanceAgreementEntity, { dispatch, getState }) => {
+    const state = getState() as AppState;
+    const token = state.user.user?.access_token;
+    const formServiceUrl =
+      state.start.directory['urn:ads:platform:form-service'];
+
+    const { data } = await axios.post<{
+      submitted: string;
+      status: FormStatus;
+    }>(
+      `${formServiceUrl}/form/v1/forms/${entity.id}`,
+      {
+        operation: 'submit',
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    dispatch(push('/agreements'));
+
+    return { ...entity, status: data.status } as PerformanceAgreementEntity;
+  }
+);
+
 export const initialPAState: PerformanceAgreementState =
   paAdapter.getInitialState({
     loadingStatus: 'not loaded',
@@ -218,10 +269,27 @@ export const paSlice = createSlice({
         state.loadingStatus = 'error';
         state.error = action.error.message;
       })
-      .addCase(createPerformanceAgreement.fulfilled, (state, action) =>
-        paAdapter.setOne(state, action.payload)
-      )
-      .addCase(updatePerformanceAgreement.fulfilled, (state, action) =>
+      .addCase(createPerformanceAgreement.pending, (state) => {
+        state.savingStatus = 'saving';
+      })
+      .addCase(createPerformanceAgreement.fulfilled, (state, action) => {
+        paAdapter.setOne(state, action.payload);
+        state.savingStatus = 'no changes';
+      })
+      .addCase(savePerformanceAgreement.pending, (state) => {
+        state.savingStatus = 'saving';
+      })
+      .addCase(savePerformanceAgreement.rejected, (state) => {
+        state.savingStatus = 'error';
+      })
+      .addCase(savePerformanceAgreement.fulfilled, (state) => {
+        state.savingStatus = 'no changes';
+      })
+      .addCase(updatePerformanceAgreement.fulfilled, (state, action) => {
+        paAdapter.setOne(state, action.payload);
+        state.savingStatus = 'changed';
+      })
+      .addCase(submitPerformanceAgreement.fulfilled, (state, action) =>
         paAdapter.setOne(state, action.payload)
       );
   },
@@ -293,4 +361,9 @@ export const selectIsReady = createSelector(
 export const selectPALoading = createSelector(
   selectPAState,
   (state) => state.loadingStatus
+);
+
+export const selectPASaving = createSelector(
+  selectPAState,
+  (state) => state.savingStatus
 );

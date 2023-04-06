@@ -14,18 +14,22 @@ import { Review } from './review';
 interface AgreementEdit {
   step: number;
   agreement: PerformanceAgreementEntity;
+  isSaving: boolean;
   onSelectStep: (step: number) => void;
   onChange: (agreement: PerformanceAgreementEntity) => void;
   onBack: () => void;
   onNext: () => void;
+  onSubmit: (agreement: PerformanceAgreementEntity) => void;
 }
 export const AgreementEdit: FunctionComponent<AgreementEdit> = ({
   step,
   agreement,
+  isSaving,
   onSelectStep,
   onChange,
   onBack,
   onNext,
+  onSubmit,
 }) => {
   const isDetailsComplete = !!(
     agreement.cycleStart &&
@@ -123,10 +127,12 @@ export const AgreementEdit: FunctionComponent<AgreementEdit> = ({
           <GoAButton
             type="submit"
             disabled={
+              isSaving ||
               !isDetailsComplete ||
               !isDevelopmentComplete ||
               !isPerformanceComplete
             }
+            onClick={() => onSubmit(agreement)}
           >
             Submit
           </GoAButton>

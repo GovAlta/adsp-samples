@@ -10,6 +10,7 @@ import {
   selectAllAgreements,
   selectCurrentAgreement,
   selectPALoading,
+  selectPASaving,
 } from '../pa.slice';
 import { AppDispatch } from '../../store';
 
@@ -17,6 +18,7 @@ export const AgreementsList = () => {
   const agreements = useSelector(selectAllAgreements);
   const current = useSelector(selectCurrentAgreement);
   const loading = useSelector(selectPALoading);
+  const saving = useSelector(selectPASaving);
   const dispatch = useDispatch<AppDispatch>();
 
   return (
@@ -30,20 +32,24 @@ export const AgreementsList = () => {
             Resume current cycle
           </GoAButton>
         ) : (
-          <GoAButton
-            disabled={loading !== 'loaded'}
-            onClick={() => dispatch(createPerformanceAgreement())}
-          >
-            Start new cycle
-          </GoAButton>
+          !agreements.length && (
+            <GoAButton
+              disabled={loading !== 'loaded' || saving !== 'no changes'}
+              onClick={() => dispatch(createPerformanceAgreement())}
+            >
+              Start new cycle
+            </GoAButton>
+          )
         )}
       </div>
       <GoATable width="100%">
         <thead>
-          <th>Cycle</th>
-          <th>Status</th>
-          <th>Department</th>
-          <th>Supervisor</th>
+          <tr>
+            <th>Cycle</th>
+            <th>Status</th>
+            <th>Department</th>
+            <th>Supervisor</th>
+          </tr>
         </thead>
         <tbody>
           {loading === 'loading' ? (
@@ -66,7 +72,7 @@ export const AgreementsList = () => {
             ))
           ) : (
             <tr>
-              <td colSpan={4}>No previous agreements</td>
+              <td colSpan={4}>No draft agreements</td>
             </tr>
           )}
         </tbody>
