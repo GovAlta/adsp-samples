@@ -9,6 +9,8 @@ import {
   selectAgreementsEntities,
   selectIsReady,
   selectPALoading,
+  selectPASaving,
+  submitPerformanceAgreement,
   updatePerformanceAgreement,
 } from '../pa.slice';
 import { AgreementEdit } from './agreement-edit';
@@ -23,6 +25,7 @@ export const steps = [
 export const AnnualAgreement: FunctionComponent = () => {
   const isReady = useSelector(selectIsReady);
   const loading = useSelector(selectPALoading);
+  const saving = useSelector(selectPASaving);
   const entities = useSelector(selectAgreementsEntities);
   const { agreementId, step } = useParams<{
     agreementId: string;
@@ -46,6 +49,7 @@ export const AnnualAgreement: FunctionComponent = () => {
           <AgreementEdit
             agreement={agreement}
             step={stepIdx}
+            isSaving={saving === 'saving'}
             onSelectStep={(step) =>
               dispatch(push(`/agreements/${agreementId}/${steps[step]}`))
             }
@@ -57,6 +61,9 @@ export const AnnualAgreement: FunctionComponent = () => {
             }
             onNext={() =>
               dispatch(push(`/agreements/${agreementId}/${steps[stepIdx + 1]}`))
+            }
+            onSubmit={(agreement) =>
+              dispatch(submitPerformanceAgreement(agreement))
             }
           />
         )}

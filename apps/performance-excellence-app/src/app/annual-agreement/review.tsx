@@ -63,8 +63,22 @@ export const Review: FunctionComponent<ReviewProps> = ({
       >
         <h3>Performance</h3>
         <div>
-          {agreement.performance?.map(({ goals, targets }) => (
-            <div>
+          {agreement.performance?.map(({ goals, targets }, idx) => (
+            <div key={idx}>
+              <GoAFormItem label="Goals and actions">
+                <span>{goals}</span>
+              </GoAFormItem>
+              <GoAFormItem label="Targets and milestones">
+                <span>{targets}</span>
+              </GoAFormItem>
+              <GoADivider mt="m" mb="l" />
+            </div>
+          ))}
+        </div>
+        <h3>Leadership</h3>
+        <div>
+          {agreement.leadership?.map(({ goals, targets }, idx) => (
+            <div key={idx}>
               <GoAFormItem label="Goals and actions">
                 <span>{goals}</span>
               </GoAFormItem>
@@ -82,8 +96,8 @@ export const Review: FunctionComponent<ReviewProps> = ({
       >
         <h3>Development plan</h3>
         <div>
-          {agreement.development?.map(({ goals, targets }) => (
-            <div>
+          {agreement.development?.map(({ goals, targets }, idx) => (
+            <div key={idx}>
               <GoAFormItem label="Goals and actions">
                 <span>{goals}</span>
               </GoAFormItem>
