@@ -37,7 +37,7 @@ export interface PerformanceAgreementEntity {
   development?: PerformanceAgreementItem[];
 }
 
-type FormStatus = 'draft' | 'submitted';
+type FormStatus = 'draft' | 'submitted' | 'locked';
 
 export interface PerformanceAgreementState
   extends EntityState<PerformanceAgreementEntity> {
@@ -98,17 +98,7 @@ export const getPerformanceAgreements = createAsyncThunk(
 
     const agreements: PerformanceAgreementEntity[] = [];
     for (const result of data.results) {
-      if (result.status !== 'draft') {
-        const submitted = new Date(result.submitted);
-        const end = new Date(result.submitted);
-        end.setFullYear(submitted.getFullYear() + 1);
-        agreements.push({
-          id: result.id,
-          status: result.status,
-          cycleStart: submitted,
-          cycleEnd: end,
-        });
-
+      if (result.status === 'locked') {
         continue;
       }
 
